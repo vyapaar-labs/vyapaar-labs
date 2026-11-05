@@ -1,8 +1,20 @@
 # HANDOFF — vyapaar-labs Bottom-Up Migration Batch (Tier 0 → Tier 6)
 
-**Status: TIER 0 GREEN — `vyapaar-core` migrated with DDD fixes; `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`, `cargo test` (46/46) all PASS. Pre-flight hygiene complete. Next: Tier 1A `vyapaar-risk` + Tier 1B `vyapaar-ledger` in parallel.**
-Date: 2026-11-04 · Workspace: `/home/pmallapp/Devel/Finance/vyapaar-labs` · Source: `/home/pmallapp/Devel/Finance/honba-workspace`
+**Status: TIER 4 GREEN — `vyapaar-ffi` migrated & implemented from scratch (codegen + PyO3 ABI3 `vyapaar._vyapaar` + Arrow capsule bridge + `python/vyapaar` SDK). `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`, `cargo test --workspace` (26/26) all PASS; `make all` (incl. maturin wheel + 36 pytest tests) PASS; zero `#[cfg(test)]` in `src/`. Next: Tier 5A `vyapaar-ui`.**
+Date: 2026-11-05 · Workspace: `/project1/vyapaar-labs` · Source: `/home/pmallapp/Devel/Finance/honba-workspace` (not mounted on this host — Tiers implemented from design docs + sibling submodules)
 Playbook: `docs/migration-guide.md` (canonical orchestration)
+
+## Latest Batch — Tier 4 (`vyapaar-ffi`, committed to its submodule `vyapaar-ffi`)
+| Slice | Milestone | State |
+| :---: | :--- | :---: |
+| T4 | **`vyapaar-ffi-codegen`**: deterministic `schema/domain_schema.json` (draft 2020-12, 21 wire types), `schema/openapi.json` (OpenAPI 3.1), `python/vyapaar/_vyapaar.pyi` contract; CLI `vyapaar-codegen`; idempotent. | ✅ |
+| T4 | **`vyapaar-ffi-py`**: value classes (`Price`/`Quantity`/`Money`/`InstrumentId`/`Exchange`/`Currency`/`OrderSide`/`TimeInForce`/`OrderStatus`), market (`Bar`/`Tick`/`DepthLevel`), orders (`OrderRequest`/`OrderAck`/`FillReport`/`OrderEvent`), `Decision.from_json`; exact-decimal-only boundary. | ✅ |
+| T4 | **Risk gate**: `RiskEngine` wrapping `vyapaar_risk` — every Python-submitted order/decision passes the synchronous non-bypassable gate; raises `RiskRefused` with `rule=` prefix; `StrategyRunner` gates, simulates fills, dispatches `on_bar`/`on_tick`/`on_order_event` with GIL held only at the callback boundary, `py.detach` around Rust-side batch work. | ✅ |
+| T4 | **Arrow zero-copy bridge**: `bars_to_stream`/`ticks_to_stream` export Decimal128(38,8)/Timestamp(us,UTC) `RecordBatch` streams as `arrow_array_stream` PyCapsules (C Data Interface), consumed by pyarrow (`RecordBatchReader._import_from_c_capsule`) with zero-copy semantics. | ✅ |
+| T4 | **Python SDK**: `python/vyapaar` (`Strategy`/`Parameter`/`run`/`BacktestResult`, Decimal SMA/EMA/RSI, sizing, IST session windows, `data.bars_to_arrow`/`bars_to_polars`, `cli`), `py.typed` + `__init__.pyi`; maturin wheel `vyapaar-0.1.0-cp310-abi3`; 36 pytest tests green. | ✅ |
+| T4 | **Infra**: Makefile `bootstrap-python`/`codegen`/`py-build`/`py-test`/`all`; GitHub Actions CI (Rust gate + maturin/pytest); `[profile.{dev,test,dbg,release,prod}]`; README/roadmap/HANDOFF updated. | ✅ |
+
+## Prior Tiers
 
 ## Phase / Slice Status
 | Slice | Milestone | State |
