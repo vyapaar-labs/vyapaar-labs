@@ -35,6 +35,8 @@ This is the canonical instruction file for AI coding agents, autonomous research
   2. **Decisions & Discoveries**: Concrete probe-verified findings and wire contracts.
   3. **Immediate Next Step**: The exact next file, test, or slice to implement.
   4. **Operating Invariants**: Technical pins (e.g. pinned compiler/runtime versions, prohibited actions).
+* Keeping `HANDOFF.md` current and short (not just appending to it) is itself binding — see §10
+  and `.agents/rules/handoff-hygiene.md`.
 
 ---
 
@@ -385,3 +387,22 @@ Every orchestrator session and spawned subagent, in every repo in this workspace
    the diff for stubs/mocks/hardcoded literals and confirms each has a gap doc (with a citation if
    it depends on an existing one). See `vyapaar-ui-web/docs/gaps/` for a reference implementation,
    including a cross-repo example (`0003-vyapaar-core-wasm32-uuid-getrandom.md`).
+
+## 10. HANDOFF.md Hygiene Rule (binding)
+
+Every orchestrator session and spawned subagent, in every repo in this workspace, obeys
+`.agents/rules/handoff-hygiene.md`:
+1. **Update `HANDOFF.md` in the same change** that changes what's true about Phase/Slice Status,
+   Decisions & Discoveries, Immediate Next Step, or Operating Invariants (§1.2). Per-repo
+   `HANDOFF.md` tracks that repo's own in-flight work; the `vyapaar-labs` root one tracks only
+   what spans repo boundaries, and summarizes rather than duplicates a submodule's own file.
+2. **Trim stale content in the same edit that makes it stale**, not as a separate periodic chore:
+   a noted problem that's no longer true/reproducible, a gap that's since been implemented
+   (closed gaps live in `docs/gaps/XXXX-*.md`, not `HANDOFF.md`), or a run/build/test report
+   superseded by a newer one — all get removed, not left to accumulate.
+3. **Growth itself is a signal**: if a reader can't scan it in under a minute, that's a trigger
+   for a dedicated trim pass — fold completed, superseded slices into one line each (milestone +
+   commit/PR pointer) rather than keeping every historical slice's full detail.
+4. `HANDOFF.md` is forward-looking scratch memory for resuming paused work, not a permanent
+   record — closed gaps, resolved bugs, and past run reports have permanent homes elsewhere
+   (`docs/gaps/`, git history) and get cited from `HANDOFF.md`, not duplicated into it.
