@@ -131,7 +131,10 @@ for a prerequisite of the other:
   LLM-calling plumbing, not any of the quant-math crates above. It can start as soon as its own
   Phase 1 is approved for implementation, in parallel with Layers 0–3, rather than waiting for them.
   Its own internal order is strict (Phase 1 → 2 → 3 → 4, local SLM explicitly last) and is already
-  fully specified inside that doc.
+  fully specified inside that doc. Phase 4's model licensing, fine-tuning, quantization, and
+  determinism detail lives in a companion reference doc,
+  `vyapaar-agent/docs/plans/0005-local-slm-model-selection-and-reliability-reference.md` — it is
+  supporting material for this step, not a separate item in the build order.
 
 ---
 
