@@ -154,19 +154,34 @@ wire contract; see the plan doc's status header).
 
 ---
 
-## Deferred / triggered-by-completion — not part of the ordered build
+## Layer 6 — Triggered deferred items (implemented)
 
-These three docs are explicitly written as "wait for a trigger," not "build now." They don't occupy
-a position in the sequence above because they're gated on something else finishing, not on a
-dependency being ready:
+Two of the three docs flagged below as "deferred / triggered-by-completion" had their triggers fire
+once Layers 1–5 shipped. **Both are implemented**:
 
-- **`vyapaar-examples/docs/plans/0001-fincept-gap-closing-examples.md`** — add an example only once
-  the engine it demonstrates has shipped (Layer 1, 4, or elsewhere).
-- **`vyapaar-data/docs/plans/0002-filings-and-econ-series-breadth.md`** — revisit once a concrete
-  consumer (a screener field, a research hypothesis) actually needs filings data — not before.
-- **`vyapaar-docs/docs/plans/0002-fincept-quantcept-mapping-and-local-llm-docs.md`** — its OmniRoute
-  setup-guide half is explicitly gated on Track B (Layer 4) reaching its Phase 2; its terminology-
-  disambiguation half (Fincept vs. Quantcept) has no gate and can be written any time.
+- **`vyapaar-examples/docs/plans/0001-fincept-gap-closing-examples.md`** — **implemented**. One
+  runnable example per shipped engine: `examples/12_portfolio_allocation`
+  (`vyapaar-ledger-allocation` mirror: mean-variance tangency, damped risk parity, bounds),
+  `examples/13_black_scholes_greeks` (`vyapaar-market-pricing` mirror: Black-Scholes price, five
+  Greeks, IV bisection), `examples/14_timeseries_forecast` (`vyapaar-agent-forecast` Theta mirror),
+  `examples/15_fama_macbeth_factor_regression` (`vyapaar-agent-panel` two-pass mirror), plus shared
+  exact-Decimal stats/linear-algebra helpers in `vyapaar_examples/quant.py` and per-example
+  regression tests in `tests/unit/`. Commit `vyapaar-examples` 552c873.
+- **`vyapaar-docs/docs/plans/0002-fincept-quantcept-mapping-and-local-llm-docs.md`** —
+  **implemented**. Terminology disambiguation (`docs/ai/fincept-vs-quantcept.md` — no gate) and the
+  OmniRoute setup guide (`docs/ai/omniroute_setup.md` — gated on Track B, Layer 4, reaching Phase 2,
+  which shipped), linked from `docs/ai/index.md` and the MkDocs nav. Commit `vyapaar-docs` 1267490.
+
+---
+
+## Level 7 — Remaining deferred (still gated)
+
+These docs remain "wait for a trigger," not "build now." They don't occupy a position in the
+sequence above because they're gated on a trigger firing, not on a dependency being ready:
+
+- **`vyapaar-data/docs/plans/0002-filings-and-econ-series-breadth.md`** — still deferred, by its own
+  gate: revisit filings ingestion once a concrete consumer (a screener field, a research hypothesis)
+  actually needs filings data — do not build a generic filings pipeline speculatively.
 
 ---
 
@@ -184,4 +199,5 @@ dependency being ready:
 | 4A | `vyapaar-agent/0003` | new `vyapaar-agent-forecast`/`vyapaar-agent-panel`, extend `vyapaar-agent-analytics` | Layer 0, Layer 2b (`vyapaar-ffi`) |
 | 4B | `vyapaar-agent/0004` | `vyapaar-agent-llm` and consumers | nothing — can run parallel to 0–4A |
 | 5 | `vyapaar-ui/0005` | `vyapaar-ui-app`, `vyapaar-tui`, `vyapaar-ui-core` | everything above |
-| — | `vyapaar-examples/0001`, `vyapaar-data/0002`, `vyapaar-docs/0002` | deferred, no fixed position | triggered by completion elsewhere |
+| 6 | `vyapaar-examples/0001`, `vyapaar-docs/0002` | `vyapaar-examples`, `vyapaar-docs` | triggers satisfied by Layers 1–5 (both implemented) |
+| 7 | `vyapaar-data/0002` | `vyapaar-data` | still gated on a concrete filings consumer |
