@@ -118,7 +118,8 @@ constraint with the rest of this list.
 
 These two docs are **two separate tracks** that don't block each other — they touch almost
 entirely different crates inside `vyapaar-agent`. Worth stating explicitly so neither is mistaken
-for a prerequisite of the other:
+for a prerequisite of the other. **Both tracks are implemented** (see
+`vyapaar-agent/docs/plans/0003` and `0004`, both marked implemented):
 
 - **Track A — quant-engine expansion**: `vyapaar-agent/docs/plans/0003-remaining-fincept-analytics-engines.md`.
   Benefits from Layer 0 landing first (its `vyapaar-agent-forecast` crate wants the return/series
@@ -146,7 +147,10 @@ screen this doc proposes is a thin view over a domain crate from a lower layer (
 over `vyapaar-ledger-portfolio` and, once it exists, `vyapaar-ledger-allocation`'s target weights,
 algo management over `vyapaar-strategies`' new manifests). Building any of these screens before the
 crate underneath it exists means building against a mock that gets reworked the moment the real
-crate lands — there is no benefit to starting this layer early.
+crate lands — there is no benefit to starting this layer early. **Implemented** — all three phases
+landed in `vyapaar-ui` (Watchlist/Dashboard + Screener + Backtest results viewer + Portfolio view +
+Algo management; the two-screener question was resolved to the canonical `vyapaar_core::screener`
+wire contract; see the plan doc's status header).
 
 ---
 
