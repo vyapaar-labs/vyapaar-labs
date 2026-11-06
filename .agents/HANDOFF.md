@@ -4,6 +4,19 @@
 Date: 2026-11-05 · Workspace: `/project1/vyapaar-labs` · Source: `/home/pmallapp/Devel/Finance/honba-workspace` (not mounted on this host — Tiers implemented from design docs + sibling submodules)
 Playbook: `docs/migration-guide.md` (canonical orchestration)
 
+## Latest Batch — Fincept/Quantcept gap-closure, Layer 0 + Layer 1 (bottoms-up build order)
+
+Playbook: `docs/future-work-bottoms-up-build-order.md` — Layers 0, 1a, 1b, 1c all GREEN. Each subrepo (vyapaar-core, vyapaar-risk, vyapaar-ledger, vyapaar-market) is an independent git repo with its own commit. `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`, `cargo test` PASS in every touched repo. Zero `#[cfg(test)]`/`#[test]` in `src/`; zero floats crossing domain boundaries.
+
+| Layer | Doc | Commit | Status |
+| :---: | :--- | :--- | :---: |
+| 0 | `vyapaar-core/0001` quant primitives (`quant.rs`: `QuantSeries`, `QuantError`, simple/log returns, realized/EWMA vol, rolling mean/stdev, Sharpe, max drawdown, correlation, beta; golden + proptest in `tests/quant_tests.rs` / `tests/quant_proptest.rs`) | `vyapaar-core` 9ce4880 | ✅ |
+| 1a | `vyapaar-ledger/0001` new `vyapaar-ledger-allocation` crate, Phase 1 (MeanVariance + RiskParity, `WeightBounds`, `PortfolioState::from_portfolio` read-adapter, `optimize()`, `TargetWeights` with custom serde; pure-Decimal Gauss-Jordan + damped risk-parity fixed point; 17 tests) | `vyapaar-ledger` b35a314 | ✅ |
+| 1b | `vyapaar-risk/0001` `ToolRiskHint` + `risk_classification(&Decision)` (DecisionKind doesn't exist in core → classify the closed `Decision` enum directly; exhaustive tests) | `vyapaar-risk` 5b00cda | ✅ |
+| 1c | `vyapaar-market/0001` Phase 1: 18 indicators (ichimoku, keltner_channels, parabolic_sar, cci, mfi, roc, trix, aroon, chaikin_money_flow, cmo, ultimate_oscillator, elder_ray, kst, vortex, fisher_transform, pivot_points, hull_ma, mass_index) + Phase 2: new `vyapaar-market-pricing` crate (Black-Scholes price/Greeks/IV, f64-internal/Decimal-boundary documented) | `vyapaar-market` ddb5c3f + 1983512 | ✅ |
+
+Key decisions: vyapaar-core enables `rust_decimal` `maths` feature (pure-Decimal `sqrt`/`ln`, no floats). The `vyapaar-market` Phase 3 broker wire-mapping verification and Layer 2 (`vyapaar-exec/0001`) are NOT done — they belong to Layer 2 of the build order. `vyapaar-risk` commit does not bump any risk-gate behavior.
+
 ## Latest Batch — Tier 4 (`vyapaar-ffi`, committed to its submodule `vyapaar-ffi`)
 | Slice | Milestone | State |
 | :---: | :--- | :---: |
