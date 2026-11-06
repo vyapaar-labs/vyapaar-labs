@@ -245,23 +245,26 @@ Before running Tier 0:
 
 ---
 
-### Tier 5A & 5B: Workstations (`vyapaar-ui` )
+### Tier 5A & 5B: Workstations (`vyapaar-ui` ) — ✅ **COMPLETE (2026-11-05)**
 * **Detailed Playbooks**:
   - [`vyapaar-ui/docs/migration-guide.md`](./vyapaar-ui/docs/migration-guide.md) (Source: `honba-workspace/honba-kao`)
 * **DDD Fixes to Apply During Migration**:
   1. In `vyapaar-ui`: Remove unconditional `tokio` dependencies from WASM crates (`vyapaar-ui-core`, `vyapaar-ui-assets`, `vyapaar-ui-charts`, `vyapaar-ui-client`, `vyapaar-ui-api-wasm`, `vyapaar-ui-app`).
   2. Implement `vyapaar-highlight` (tree-sitter syntax highlighter), `vyapaar-tui` (Ratatui terminal workstation), and `vyapaar-cli` (`vyapaar` static binary with `vyapaar tui`, `vyapaar ask`, `vyapaar backtest`, `vyapaar serve` subcommands).
   3. Do **NOT** copy `honba-kao/crates-old/` dead legacy code.
-* **Verification Gate**:
+* **Verification Gate** (all green):
   ```bash
   cd /home/pmallapp/Devel/Finance/vyapaar-labs/vyapaar-ui
   cargo fmt --check && cargo clippy --all-targets -- -D warnings && cargo test --workspace
   cargo check -p vyapaar-ui-app --target wasm32-unknown-unknown
   ```
+* **Migration notes**: honba-kao source was unavailable in the environment;
+  all 9 crates implemented fresh against the sub-guide contracts. See
+  `vyapaar-ui/docs/migration-guide.md` §4 and `vyapaar-ui/.agents/HANDOFF.md`.
 
 ---
 
-### Tier 6: Python Ecosystem & Documentation (`vyapaar-data`, `vyapaar-adapters`, `vyapaar-strategies`, `vyapaar-examples`, `vyapaar-docs`)
+### Tier 6: Python Ecosystem & Documentation (`vyapaar-data`, `vyapaar-adapters`, `vyapaar-strategies`, `vyapaar-examples`, `vyapaar-docs`) — ✅ **COMPLETE (2026-11-06)**
 * **Detailed Playbooks**:
   - [`vyapaar-data/docs/migration-guide.md`](./vyapaar-data/docs/migration-guide.md)
   - [`vyapaar-adapters/docs/migration-guide.md`](./vyapaar-adapters/docs/migration-guide.md)
@@ -271,6 +274,18 @@ Before running Tier 0:
 * **DDD Fixes to Apply During Migration**:
   1. Fix all `pyproject.toml` files in `vyapaar-{data,adapters,strategies,examples}`: remove invalid `"rust_decimal>=1.0.0"` dependency and declare proper PEP 621 dependencies (`vyapaar`, `polars`, `pyarrow`, `duckdb`, `pydantic`).
   2. Enforce the 4-Zone Clean Package Layout (`src/vyapaar_<pkg>/` or `vyapaar_<pkg>/`, `tests/`, `configs/` or `catalog/`, `docs/`).
+* **Verification Gates** (all green, verified 2026-11-06):
+  ```bash
+  for r in vyapaar-data vyapaar-adapters vyapaar-strategies vyapaar-examples; do
+    (cd $r && pytest -q && ruff check . && ruff format --check .)
+  done
+  (cd vyapaar-docs && mkdocs build --strict)
+  ```
+* **Migration notes**: `honba-{data,adapters,strategies,examples,docs}` sources
+  were unavailable in the environment; all five repositories were implemented
+  fresh against the sub-guide contracts (see each repo's `.agents/HANDOFF.md`).
+  Zero-floats invariants and the parallel test directory rule are enforced by
+  ruff (`RUF032` rejects `Decimal(<float literal>)`) and `mypy` in CI.
 
 ---
 

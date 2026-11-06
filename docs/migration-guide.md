@@ -264,7 +264,7 @@ Before running Tier 0:
 
 ---
 
-### Tier 6: Python Ecosystem & Documentation (`vyapaar-data`, `vyapaar-adapters`, `vyapaar-strategies`, `vyapaar-examples`, `vyapaar-docs`)
+### Tier 6: Python Ecosystem & Documentation (`vyapaar-data`, `vyapaar-adapters`, `vyapaar-strategies`, `vyapaar-examples`, `vyapaar-docs`) — ✅ **COMPLETE (2026-11-06)**
 * **Detailed Playbooks**:
   - [`vyapaar-data/docs/migration-guide.md`](./vyapaar-data/docs/migration-guide.md)
   - [`vyapaar-adapters/docs/migration-guide.md`](./vyapaar-adapters/docs/migration-guide.md)
@@ -274,6 +274,18 @@ Before running Tier 0:
 * **DDD Fixes to Apply During Migration**:
   1. Fix all `pyproject.toml` files in `vyapaar-{data,adapters,strategies,examples}`: remove invalid `"rust_decimal>=1.0.0"` dependency and declare proper PEP 621 dependencies (`vyapaar`, `polars`, `pyarrow`, `duckdb`, `pydantic`).
   2. Enforce the 4-Zone Clean Package Layout (`src/vyapaar_<pkg>/` or `vyapaar_<pkg>/`, `tests/`, `configs/` or `catalog/`, `docs/`).
+* **Verification Gates** (all green, verified 2026-11-06):
+  ```bash
+  for r in vyapaar-data vyapaar-adapters vyapaar-strategies vyapaar-examples; do
+    (cd $r && pytest -q && ruff check . && ruff format --check .)
+  done
+  (cd vyapaar-docs && mkdocs build --strict)
+  ```
+* **Migration notes**: `honba-{data,adapters,strategies,examples,docs}` sources
+  were unavailable in the environment; all five repositories were implemented
+  fresh against the sub-guide contracts (see each repo's `.agents/HANDOFF.md`).
+  Zero-floats invariants and the parallel test directory rule are enforced by
+  ruff (`RUF032` rejects `Decimal(<float literal>)`) and `mypy` in CI.
 
 ---
 
