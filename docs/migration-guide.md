@@ -245,19 +245,22 @@ Before running Tier 0:
 
 ---
 
-### Tier 5A & 5B: Workstations (`vyapaar-ui` )
+### Tier 5A & 5B: Workstations (`vyapaar-ui` ) — ✅ **COMPLETE (2026-11-05)**
 * **Detailed Playbooks**:
   - [`vyapaar-ui/docs/migration-guide.md`](./vyapaar-ui/docs/migration-guide.md) (Source: `honba-workspace/honba-kao`)
 * **DDD Fixes to Apply During Migration**:
   1. In `vyapaar-ui`: Remove unconditional `tokio` dependencies from WASM crates (`vyapaar-ui-core`, `vyapaar-ui-assets`, `vyapaar-ui-charts`, `vyapaar-ui-client`, `vyapaar-ui-api-wasm`, `vyapaar-ui-app`).
   2. Implement `vyapaar-highlight` (tree-sitter syntax highlighter), `vyapaar-tui` (Ratatui terminal workstation), and `vyapaar-cli` (`vyapaar` static binary with `vyapaar tui`, `vyapaar ask`, `vyapaar backtest`, `vyapaar serve` subcommands).
   3. Do **NOT** copy `honba-kao/crates-old/` dead legacy code.
-* **Verification Gate**:
+* **Verification Gate** (all green):
   ```bash
   cd /home/pmallapp/Devel/Finance/vyapaar-labs/vyapaar-ui
   cargo fmt --check && cargo clippy --all-targets -- -D warnings && cargo test --workspace
   cargo check -p vyapaar-ui-app --target wasm32-unknown-unknown
   ```
+* **Migration notes**: honba-kao source was unavailable in the environment;
+  all 9 crates implemented fresh against the sub-guide contracts. See
+  `vyapaar-ui/docs/migration-guide.md` §4 and `vyapaar-ui/.agents/HANDOFF.md`.
 
 ---
 
