@@ -4,9 +4,9 @@
 Date: 2026-11-05 · Workspace: `/project1/vyapaar-labs` · Source: `/home/pmallapp/Devel/Finance/honba-workspace` (not mounted on this host — Tiers implemented from design docs + sibling submodules)
 Playbook: `docs/migration-guide.md` (canonical orchestration)
 
-## Latest Batch — Fincept/Quantcept gap-closure, Layer 0 + Layer 1 (bottoms-up build order)
+## Latest Batch — Fincept/Quantcept gap-closure, Layers 0, 1, 2 (bottoms-up build order)
 
-Playbook: `docs/future-work-bottoms-up-build-order.md` — Layers 0, 1a, 1b, 1c all GREEN. Each subrepo (vyapaar-core, vyapaar-risk, vyapaar-ledger, vyapaar-market) is an independent git repo with its own commit. `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`, `cargo test` PASS in every touched repo. Zero `#[cfg(test)]`/`#[test]` in `src/`; zero floats crossing domain boundaries.
+Playbook: `docs/future-work-bottoms-up-build-order.md` — Layers 0, 1a, 1b, 1c, and 2 all GREEN. Each subrepo (vyapaar-core, vyapaar-risk, vyapaar-ledger, vyapaar-market, vyapaar-exec) is an independent git repo with its own commit. `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`, `cargo test` PASS in every touched repo. Zero `#[cfg(test)]`/`#[test]` in `src/`; zero floats crossing domain boundaries.
 
 | Layer | Doc | Commit | Status |
 | :---: | :--- | :--- | :---: |
@@ -14,8 +14,9 @@ Playbook: `docs/future-work-bottoms-up-build-order.md` — Layers 0, 1a, 1b, 1c 
 | 1a | `vyapaar-ledger/0001` new `vyapaar-ledger-allocation` crate, Phase 1 (MeanVariance + RiskParity, `WeightBounds`, `PortfolioState::from_portfolio` read-adapter, `optimize()`, `TargetWeights` with custom serde; pure-Decimal Gauss-Jordan + damped risk-parity fixed point; 17 tests) | `vyapaar-ledger` b35a314 | ✅ |
 | 1b | `vyapaar-risk/0001` `ToolRiskHint` + `risk_classification(&Decision)` (DecisionKind doesn't exist in core → classify the closed `Decision` enum directly; exhaustive tests) | `vyapaar-risk` 5b00cda | ✅ |
 | 1c | `vyapaar-market/0001` Phase 1: 18 indicators (ichimoku, keltner_channels, parabolic_sar, cci, mfi, roc, trix, aroon, chaikin_money_flow, cmo, ultimate_oscillator, elder_ray, kst, vortex, fisher_transform, pivot_points, hull_ma, mass_index) + Phase 2: new `vyapaar-market-pricing` crate (Black-Scholes price/Greeks/IV, f64-internal/Decimal-boundary documented) | `vyapaar-market` ddb5c3f + 1983512 | ✅ |
+| 2 | `vyapaar-exec/0001` Phase 1 + `vyapaar-market/0001` Phase 3, run jointly — **broker wire-mapping verification/refactor**: exec-side confirmed ad-hoc match chains → new table-driven `BrokerEnumMap<T>` in `vyapaar-exec-core::wiring` (+ `OrderTypeKind` discriminant), per-broker `mapping` tables in `vyapaar-exec-zerodha`/`-upstox` (status/side/exchange/order-type, REST + ticker + postback + WS feed paths), parallel `tests/wire_mapping_tests.rs` + `tests/wiring_tests.rs`; market-side verified to have no wire code yet (4 placeholder crates + dhan stub) → documented as forward contract. Crypto scope decision (Phase 2) left open. | `vyapaar-exec` 2675c07 | ✅ |
 
-Key decisions: vyapaar-core enables `rust_decimal` `maths` feature (pure-Decimal `sqrt`/`ln`, no floats). The `vyapaar-market` Phase 3 broker wire-mapping verification and Layer 2 (`vyapaar-exec/0001`) are NOT done — they belong to Layer 2 of the build order. `vyapaar-risk` commit does not bump any risk-gate behavior.
+Key decisions: vyapaar-core enables `rust_decimal` `maths` feature (pure-Decimal `sqrt`/`ln`, no floats). Layer 2 refactor was Red-Green on new tests with the existing conformance/rest/ticker/postback suites untouched and green; `BrokerEnumMap::get` is ASCII case-insensitive (brokers emit both `COMPLETE` and `complete`), canonical→wire payload building left as exhaustive matches (no unmapped fallback, out of the doc's scope). `vyapaar-exec/0001` Phase 2 (crypto execution go/no-go) is **explicitly still open** — no crypto adapter was implemented. `vyapaar-risk` commit does not bump any risk-gate behavior.
 
 ## Latest Batch — Tier 4 (`vyapaar-ffi`, committed to its submodule `vyapaar-ffi`)
 | Slice | Milestone | State |
