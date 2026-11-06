@@ -364,3 +364,24 @@ Every orchestrator session and spawned subagent obeys `.agents/rules/subagent-di
 2. **Zero recon for subagents**: every subagent prompt is self-contained (exact files, verified API signatures, designs, verify commands); subagents do not spend steps discovering the codebase — returning with a precise question is the correct failure mode.
 3. **Zero-recon enforcement on the subagent side**: every spawned subagent must obey `.agents/rules/no-recon.md` — write-first (edits before any read), no orienting `ls`/`glob`/grep, no re-reading facts the prompt inlines, at most the 2 verification reads the prompt budgets; missing fact ⇒ stop and return one precise question.
 4. Resumes go through `sessionID` with an "execute now" list; the orchestrator preserves verified facts and re-inlines them.
+
+## 9. Gap Tracking Rule (binding)
+
+Every orchestrator session and spawned subagent, in every repo in this workspace, obeys
+`.agents/rules/gap-tracking.md`:
+1. **File a gap, in the same change, whenever stubbing/mocking/hardcoding**: `docs/gaps/
+   XXXX-short-slug.md` in the repo where the stub lives (status / what's stubbed / why / how to
+   close it), plus a row in that repo's `docs/gaps/README.md`. Numbering is per-repo, sequential,
+   never reused. A repo's `docs/gaps/` is created lazily on first use.
+2. **Diagnose root cause, not just symptom, before filing** — in this multi-repo workspace the
+   actual dependency a stub is waiting on often lives in a *different* `vyapaar-*` repo than the
+   one the symptom shows up in (e.g. a build failure here caused by a missing feature flag in
+   `vyapaar-core`). Name the real repo/path in the gap doc. File in the consuming repo; never
+   silently patch a repo outside the current task's scope to close someone else's gap.
+3. **Cite the dependency when implementing**: any change that depends on, works around, or is
+   blocked by an existing gap (in this repo or another) names that gap's number in a code comment
+   at the workaround and in the commit message — never build on top of a known gap uncited.
+4. Reviewed the same way subagent discipline is: a non-trivial implementation's review pass greps
+   the diff for stubs/mocks/hardcoded literals and confirms each has a gap doc (with a citation if
+   it depends on an existing one). See `vyapaar-ui-web/docs/gaps/` for a reference implementation,
+   including a cross-repo example (`0003-vyapaar-core-wasm32-uuid-getrandom.md`).
