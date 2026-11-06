@@ -4,7 +4,7 @@
 Date: 2026-11-05 · Workspace: `/project1/vyapaar-labs` · Source: `/home/pmallapp/Devel/Finance/honba-workspace` (not mounted on this host — Tiers implemented from design docs + sibling submodules)
 Playbook: `docs/migration-guide.md` (canonical orchestration)
 
-## Latest Batch — Fincept/Quantcept gap-closure, Layers 0, 1, 2, 2b (bottoms-up build order)
+## Latest Batch — Fincept/Quantcept gap-closure, Layers 0, 1, 2, 2b, 3 (bottoms-up build order)
 
 Playbook: `docs/future-work-bottoms-up-build-order.md` — Layers 0, 1a, 1b, 1c, 2, 2b, and 3 all GREEN. Each subrepo (vyapaar-core, vyapaar-risk, vyapaar-ledger, vyapaar-market, vyapaar-exec, vyapaar-adapters, vyapaar-ffi, vyapaar-strategies) is an independent git repo with its own commit. `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`, `cargo test` PASS in every touched Rust repo; `ruff check`/`ruff format --check`/`mypy`/`pytest` PASS in `vyapaar-strategies`. Zero `#[cfg(test)]`/`#[test]` in `src/`; zero floats crossing domain boundaries.
 
