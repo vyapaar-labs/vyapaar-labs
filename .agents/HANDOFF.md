@@ -37,6 +37,9 @@ Key decisions: vyapaar-core enables `rust_decimal` `maths` feature (pure-Decimal
   superseded by Tiers 5–6 and this file's current "Latest Batch" above. See commits
   `feat(tier-0)` through `feat(tier-6)` in this repo's git log for the full record; the migration
   guide that used to be this file's "Playbook" pointer was retired in `4b5d9f9`.
+- **Submodule updates (2026-11-09)**:
+  - `vyapaar-examples` (`a306004`): Port Stages 6 (derivatives & StockSharp) and 7 (AI research & production) landed on `main`.
+  - `vyapaar-runtime` (`60a5bd9`): PLAN-0001 run lifecycle journaling (`FileJournalWriter`), interrupted run reboot recovery (`recover_interrupted_runs`), and Crockford Base32 `RunId` validation with decoupled tests.
 
 ## Immediate Next Step
 1. The bottoms-up build order is **complete through Layer 6**. The only remaining item is
