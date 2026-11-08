@@ -22,3 +22,11 @@ __pycache__/
 # OS / editor noise
 .DS_Store
 *.swp
+
+# Local Model weights
+models/
+*.gguf
+
+# UI Web workspace (standalone repo)
+vyapaar-ui-web/
+

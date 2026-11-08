@@ -3,12 +3,23 @@ dev = "build --workspace --profile dev"
 prod = "build --workspace --profile prod"
 check-dev = "check --workspace --profile dev"
 check-prod = "check --workspace --profile prod"
+test-prod = "test --workspace --profile prod"
+b = "build --workspace --profile prod"
+t = "test --workspace --profile prod"
+c = "check --workspace --profile prod"
+r = "run --profile prod"
 
 [profile.dev]
-opt-level = 1
+opt-level = 2
 debug = false
 strip = "debuginfo"
 
 [profile.test]
 debug = false
 strip = "debuginfo"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"

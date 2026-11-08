@@ -324,7 +324,7 @@ Every repository in the Vyapaar workspace must adhere to a standardized GitHub C
   - `.github/workflows/ci.yml`:
     1. Formatting: `cargo fmt --check`
     2. Linting: `cargo clippy --all-targets -- -D warnings`
-    3. Tests: `cargo test --all --release`
+    3. Tests: `cargo test --workspace --profile prod` (or `make test`)
 * **Python Repositories** (`vyapaar-strategies`, `vyapaar-examples`, `vyapaar-adapters`, `vyapaar-data`):
   - `.github/workflows/ci.yml`:
     1. Linting & Formatting: `ruff check . && ruff format --check .`
@@ -406,3 +406,19 @@ Every orchestrator session and spawned subagent, in every repo in this workspace
 4. `HANDOFF.md` is forward-looking scratch memory for resuming paused work, not a permanent
    record — closed gaps, resolved bugs, and past run reports have permanent homes elsewhere
    (`docs/gaps/`, git history) and get cited from `HANDOFF.md`, not duplicated into it.
+
+## 11. Build & Profile Discipline Rule (binding)
+
+Every orchestrator session and spawned subagent obeys `.agents/rules/build-discipline.md`:
+1. **The default and ONLY canonical profile is `prod` (`target/prod`)**:
+   Local LLM inference, zero-copy Arrow arrays, and SEBI pre-trade risk checks require the `prod` profile.
+2. **Strictly Forbidden**:
+   - Running bare `cargo build` (defaults to `target/debug`, leaving `target/prod` stale).
+   - Running `cargo build --release` (produces unaligned `target/release`).
+   - Running `cargo test` without `--profile prod`.
+3. **Mandatory Commands**:
+   - Build: `make prod` or `cargo build --workspace --profile prod`
+   - Test: `make test` or `cargo test --workspace --profile prod`
+   - Check: `make check` or `cargo check --workspace --profile prod`
+4. **End-of-Turn Invariant**:
+   Before completing any task or updating `HANDOFF.md` for changes touching Rust code, the agent **MUST** run `make prod` (or `make -C <subrepo> prod`) to guarantee `target/prod/` artifacts are freshly rebuilt.
