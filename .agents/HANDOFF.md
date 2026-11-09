@@ -39,7 +39,8 @@ Key decisions: vyapaar-core enables `rust_decimal` `maths` feature (pure-Decimal
   guide that used to be this file's "Playbook" pointer was retired in `4b5d9f9`.
 - **Submodule updates (2026-11-09)**:
   - `vyapaar-examples`: All 9 stages (0–8) of `honba-examples` staged port landed (`docs/plans/0002` Implemented); full test suite (922 passed, 70 skipped), master index `examples/README.md`, and docs completed.
-  - `vyapaar-runtime`: PLAN-0001 Stage 1 + 2 (RunId, FileJournalWriter, recover_interrupted_runs, BoundedWorkerPool with 429 queue backpressure, Jesse-style sweep core allocation, JobBudgets/Usage guards, FencingLease heartbeat fencing, and persistent FileJobRegistry). Zero in-file tests in `src/`.
+  - `vyapaar-runtime`: **PLAN-0001 complete (Stages 1–4)** — RunId/`FileJournalWriter`/recovery (`60a5bd9`), bounded worker pool with 429 backpressure + `FileJobRegistry` (approvals queue, fencing leases, budgets) + Vixie cron scheduler + broker dispatch behind the SEBI risk gate (`46817a0`); plan/gap docs retired (`4bd4ef5`). Remaining open: GAP-0003 (broker wire transports), PLAN-0002 (statistical gates).
+  - `vyapaar-ui`: **PLAN-0001 Stage 4 CLI half landed** — `vyapaar jobs run/tick/logs` on the runtime pool + per-run journals (`vyapaar jobs add ... -> tick -> journal verified` acceptance suite, 11 e2e tests) + agent tool-call journals + approvals gating (`0b9241d`); clippy-driven fixups (breach-first refusal for PendingApproval jobs) follow-up. Open: ui-core trade rows (`vyapaar-ui/docs/gaps/0002`).
 
 ## Immediate Next Step
 1. The bottoms-up build order is **complete through Layer 6**. The only remaining item is
