@@ -367,26 +367,27 @@ Every orchestrator session and spawned subagent obeys `.agents/rules/subagent-di
 3. **Zero-recon enforcement on the subagent side**: every spawned subagent must obey `.agents/rules/no-recon.md` — write-first (edits before any read), no orienting `ls`/`glob`/grep, no re-reading facts the prompt inlines, at most the 2 verification reads the prompt budgets; missing fact ⇒ stop and return one precise question.
 4. Resumes go through `sessionID` with an "execute now" list; the orchestrator preserves verified facts and re-inlines them.
 
-## 9. Gap Tracking Rule (binding)
+## 9. Plan & Gap Tracking Rule (binding)
 
 Every orchestrator session and spawned subagent, in every repo in this workspace, obeys
 `.agents/rules/gap-tracking.md`:
-1. **File a gap, in the same change, whenever stubbing/mocking/hardcoding**: `docs/gaps/
-   XXXX-short-slug.md` in the repo where the stub lives (status / what's stubbed / why / how to
-   close it), plus a row in that repo's `docs/gaps/README.md`. Numbering is per-repo, sequential,
-   never reused. A repo's `docs/gaps/` is created lazily on first use.
-2. **Diagnose root cause, not just symptom, before filing** — in this multi-repo workspace the
-   actual dependency a stub is waiting on often lives in a *different* `vyapaar-*` repo than the
-   one the symptom shows up in (e.g. a build failure here caused by a missing feature flag in
-   `vyapaar-core`). Name the real repo/path in the gap doc. File in the consuming repo; never
-   silently patch a repo outside the current task's scope to close someone else's gap.
-3. **Cite the dependency when implementing**: any change that depends on, works around, or is
-   blocked by an existing gap (in this repo or another) names that gap's number in a code comment
-   at the workaround and in the commit message — never build on top of a known gap uncited.
-4. Reviewed the same way subagent discipline is: a non-trivial implementation's review pass greps
-   the diff for stubs/mocks/hardcoded literals and confirms each has a gap doc (with a citation if
-   it depends on an existing one). See `vyapaar-ui-web/docs/gaps/` for a reference implementation,
-   including a cross-repo example (`0003-vyapaar-core-wasm32-uuid-getrandom.md`).
+1. **Definitions**:
+   - **Gaps** (`docs/gaps/XXXX-*.md`): individual missing features, endpoints, or stubs.
+   - **Plans** (`docs/plans/XXXX-*.md`): collections of gaps or multi-phase architectural features.
+2. **File in the respective provider repo whenever stubbing/mocking/hardcoding**:
+   - If any hardcoded, stubbed, mock, or sample data is used when implementing a plan or gap, add a
+     `docs/{plans,gaps}/XXXX-*.md` style document in the **respective repo which is supposed to provide
+     the functionality** (upstream owning repo).
+   - Numbering is per-repo, sequential, never reused. Every repo with gaps maintains `docs/gaps/README.md`;
+     every repo with plans maintains `docs/plans/README.md`.
+3. **Cite the dependency when implementing**:
+   - Any change that depends on, works around, or stubs against an existing or new gap/plan must cite it
+     via a code comment at the workaround (e.g. `// stand-in for vyapaar-core/docs/gaps/0001-*.md`) and
+     name the gap/plan in the commit message.
+4. **Cleanup already implemented plans/gaps**:
+   - Once a plan or gap is implemented and verified, remove the completed document from active `docs/{plans,gaps}/`.
+   - Update any index that references it (moving the entry to Implemented/Closed in `README.md` index tables,
+     and updating any master roadmap/build-order document) to record the closing commit/PR without broken links.
 
 ## 10. HANDOFF.md Hygiene Rule (binding)
 

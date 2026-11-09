@@ -10,6 +10,11 @@ Scope note: this document covers only the 14 docs listed below. It does not refe
 to reconcile the separate, pre-existing `docs/plans/0001-fincept-quantcepts-gap-closure-and-feature-roadmap.md`
 at this same path depth — that is a different initiative and is left untouched here.
 
+> **Status Note (2026-11-09)**: Layers 0–6 of this build order are complete and verified.
+> Per `.agents/rules/gap-tracking.md` §4, implemented plan documents have been cleaned up from
+> `docs/plans/` and are tracked with closing commits in each respective repository's `docs/plans/README.md`
+> index. The list below preserves the historical plan paths and target references.
+
 The 14 docs, for reference:
 
 1. `vyapaar-core/docs/plans/0001-canonical-quant-transform-primitives.md`

@@ -38,8 +38,8 @@ Key decisions: vyapaar-core enables `rust_decimal` `maths` feature (pure-Decimal
   `feat(tier-0)` through `feat(tier-6)` in this repo's git log for the full record; the migration
   guide that used to be this file's "Playbook" pointer was retired in `4b5d9f9`.
 - **Submodule updates (2026-11-09)**:
-  - `vyapaar-examples` (`a306004`): Port Stages 6 (derivatives & StockSharp) and 7 (AI research & production) landed on `main`.
-  - `vyapaar-runtime` (`60a5bd9`): PLAN-0001 run lifecycle journaling (`FileJournalWriter`), interrupted run reboot recovery (`recover_interrupted_runs`), and Crockford Base32 `RunId` validation with decoupled tests.
+  - `vyapaar-examples`: All 9 stages (0–8) of `honba-examples` staged port landed (`docs/plans/0002` Implemented); full test suite (922 passed, 70 skipped), master index `examples/README.md`, and docs completed.
+  - `vyapaar-runtime`: PLAN-0001 Stage 1 + 2 (RunId, FileJournalWriter, recover_interrupted_runs, BoundedWorkerPool with 429 queue backpressure, Jesse-style sweep core allocation, JobBudgets/Usage guards, FencingLease heartbeat fencing, and persistent FileJobRegistry). Zero in-file tests in `src/`.
 
 ## Immediate Next Step
 1. The bottoms-up build order is **complete through Layer 6**. The only remaining item is
@@ -57,3 +57,4 @@ Key decisions: vyapaar-core enables `rust_decimal` `maths` feature (pure-Decimal
 - Zero inline `#[test]` / `#[cfg(test)]` in `src/**/*.rs` (Parallel Test Directory Rule, AGENTS.md §3.2).
 - Wire compatibility: `Price`/`Quantity` remain string-encoded decimals (`serde-with-str`); `-0.00` parses to `Decimal::ZERO` semantics (not negative-strict), matching upstream rust_decimal behavior.
 - `.agents/rules/subagent-discipline.md`, `.agents/rules/no-recon.md`, `.agents/rules/gap-tracking.md`, `.agents/rules/handoff-hygiene.md` are binding workspace-wide — see `AGENTS.md` §8–§10.
+- Plan & Gap discipline: when implementing a plan or gap, any hardcoded/stubbed/sample data used requires filing a `docs/{plans,gaps}/XXXX-*.md` in the respective provider repo (gaps = individual features, plans = collections of gaps). When implemented, the document is cleaned up from active `docs/{plans,gaps}/` and recorded in the repo's index.
