@@ -28,17 +28,22 @@ Playbook: `docs/future-work-bottoms-up-build-order.md` — Layers 0, 1a, 1b, 1c,
 | 7 | `vyapaar-data/0002` — filings/econ-series breadth. **Still gated** per its own doc: no concrete consumer yet; do not build a speculative filings pipeline. Revisit when a screener field or research hypothesis needs filings data. | — | ⏸ |
 
 This session: implemented `vyapaar-ledger` plan 0002 (`vyapaar-ledger-performance`
-crate, `vyapaar-ledger` `2a3a04e`) and `vyapaar-data` gaps 0001+0002
-(`vyapaar-data` `261d646`). Ledger plan 0002: trade-performance journal
+crate, `vyapaar-ledger` `2a3a04e`), `vyapaar-data` gaps 0001+0002 (`vyapaar-data`
+`261d646`), and `vyapaar-runtime` plan 0003 (`vyapaar-runtime` REST wrapper for
+trade-journal + market reference). Ledger plan 0002: trade-performance journal
 (annotations + analytics engine), pure/zero-I/O/zero-float, 40 tests. Data
 gap 0001: calendar ingestion with `CalendarEvent` domain, `CalendarReader`
 port, `DuckDbCalendarStore`, `LakehouseCalendarReader`, stubbed data stopgap
 (tracked by `vyapaar-data/docs/gaps/0003-*.md`). Data gap 0002: symbol-profile
 ingestion with `SymbolProfile` domain, `ProfileReader` port, `DuckDbProfileStore`,
-`LakehouseProfileReader`, yfinance provider (graceful degradation). 18 tests;
-pytest/ruff/mypy clean. All three phases of `vyapaar-runtime` plan 0003 are
-now unblocked (Phases 1–2 by ledger plan 0002; Phase 3 by data gaps 0001+0002);
-the REST wrapper itself remains unwritten.
+`LakehouseProfileReader`, yfinance provider (graceful degradation). Runtime
+plan 0003: `/trade-journal/*` (accounts, overview, trades, calendar, notes,
+compare) backed by `vyapaar-ledger-performance`, plus `/market-data/symbol-profile/:id`
+and `/market-data/calendar` (sample-data stores pending the vyapaar-data FFI
+bridge). Routes + OpenAPI registered; 12 + 5 + 5 tests. `cargo fmt/clippy -- -D
+warnings`, `cargo test --workspace --profile prod` clean. The full dependency
+chain (ledger plan 0002 → data gaps 0001+0002 → runtime plan 0003) is now
+complete.
 
 Key decisions: vyapaar-core enables `rust_decimal` `maths` feature (pure-Decimal `sqrt`/`ln`, no floats). Layer 2 refactor was Red-Green on new tests with the existing conformance/rest/ticker/postback suites untouched and green; `BrokerEnumMap::get` is ASCII case-insensitive (brokers emit both `COMPLETE` and `complete`), canonical→wire payload building left as exhaustive matches (no unmapped fallback, out of the doc's scope). **Crypto execution is NO-GO** — no `vyapaar-exec-{exchange}` crate, no crypto adapter anywhere; the decision is recorded and revisitable only via fresh scope review. Python adapters are dev/research-only for brokers with a Rust production path. `vyapaar-risk` commit does not bump any risk-gate behavior. **Layer 6 decisions**: examples mirror each Rust engine's public semantics in exact `Decimal` (Black-Scholes keeps the pricing crate's documented `f64`-internal/`Decimal`-boundary exception); docs quote the real `VYAPAAR_LLM_*` constants and `FreeTierPolicy` from `vyapaar-agent-llm`, not placeholders. **Layer 4 decisions**: the duplicate `LlmProvider` trait in `vyapaar-agent-core` was deleted (nothing outside it used it — replay re-pointed to the canonical `vyapaar-agent-llm` trait); `LlmAuditRecord.provider` is folded into the replay hash chain (schema evolved, no golden hashes existed); forecast/panel compute in `f64` internally with exact `Decimal` at the boundary (matching the `vyapaar-agent-analytics` convention; zero floats still cross money/price/quantity paths); `vyapaar_search_tools`/`vyapaar_describe_tool` gateway (0001 Phase 1) does not exist yet, so the forecast engine is exposed through the existing `tools/list` surface (`vyapaar_forecast_series`, category `forecast`) and the result/v1 envelope types were added to `vyapaar-agent-core::result`; 0004 Phase 4 (local SLM) is deferred by design.
 
