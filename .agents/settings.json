@@ -9,7 +9,15 @@
       "mcp__claude-in-chrome__read_console_messages",
       "Bash(cargo clippy *)",
       "mcp__claude-in-chrome__get_page_text",
-      "Bash(ssh-add -l*)"
+      "Bash(ssh-add -l*)",
+      "Bash(npx tsc --noEmit)",
+      "Bash(cargo fmt --check*)",
+      "Bash(ruff format --check*)",
+      "mcp__claude-in-chrome__find",
+      "mcp__claude-in-chrome__read_network_requests",
+      "mcp__claude-in-chrome__read_page",
+      "mcp__claude-in-chrome__list_connected_browsers",
+      "mcp__claude_ai_Claude_Docs__guide"
     ]
   }
 }

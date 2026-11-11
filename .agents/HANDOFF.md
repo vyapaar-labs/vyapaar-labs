@@ -2,50 +2,58 @@
 
 **Status**: Bottoms-up Fincept/Quantcept gap-closing build order
 (`docs/future-work-bottoms-up-build-order.md`) — Layers 0, 1, 2, 2b, 3, 4, 5, 6 GREEN;
-Level 7 (`vyapaar-data/0002`, filings) still gated on a concrete consumer.
-Date: 2026-11-06 · Workspace: `/home/pmallapp/Devel/Finance/vyapaar-labs`
+Level 7 (`vyapaar-data/0002`, filings breadth) partially superseded: filings ingestion itself
+landed (closed gap `vyapaar-data/docs/gaps/0003`), and plan 0006 Phase 3 (2026-11-12) is the
+first concrete Rust-side consumer — blocked only on the new
+`vyapaar-data/docs/gaps/0007-filings-rust-bridge.md`.
+Date: 2026-11-12 · Workspace: `/home/pmallapp/Devel/Finance/vyapaar-labs`
 Playbook: `docs/future-work-bottoms-up-build-order.md` (execution order, by crate dependency
 depth). The repo-migration (`honba-*` → `vyapaar-*`, Tier 0–6) that used to be this file's whole
 subject is complete and long superseded — see "Prior work" below.
 
-## Latest Batch — Fincept/Quantcept gap-closure, Layers 0, 1, 2, 2b, 3, 4, 5, 6 (bottoms-up build order)
+## Latest Batch — plan 0006 Phase 3: `news_search`/`filings_search` chat tools (agent + runtime + data)
 
-Playbook: `docs/future-work-bottoms-up-build-order.md` — Layers 0, 1a, 1b, 1c, 2, 2b, 3, 4 (both tracks), 5, and 6 all GREEN. Each subrepo (vyapaar-core, vyapaar-risk, vyapaar-ledger, vyapaar-market, vyapaar-exec, vyapaar-adapters, vyapaar-ffi, vyapaar-strategies, vyapaar-agent, vyapaar-ui, vyapaar-examples, vyapaar-docs) is an independent git repo with its own commit. `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`, `cargo test` PASS in every touched Rust repo; `ruff check`/`ruff format --check`/`mypy`/`pytest` PASS in `vyapaar-strategies`; `mkdocs build --strict` PASS in `vyapaar-docs`. Zero `#[cfg(test)]`/`#[test]` in `src/`; zero floats crossing domain boundaries.
+Date: 2026-11-12. Upstream check first (as the plan directed): filings ingestion exists in
+Python `vyapaar-data` (closed gap 0003) but has no Rust-consumer bridge; news has no source
+anywhere — so this was **not** pure tool-layer wiring. Landed: new `ContentReader` port +
+`NewsArticle`/`FilingRecord` DTOs (`vyapaar-agent-chat-tools/src/ports/content.rs`),
+`news_search` + `filings_search` tools (`src/content.rs`, both ReadOnly, catalogue count
+**15 → 17**), runtime side `chat_content.rs::FeedContentReader` with honest
+`PortError::unavailable` stubs. Gaps filed in the provider repo at implementation time:
+`vyapaar-data/docs/gaps/0006-news-ingestion.md` + `0007-filings-rust-bridge.md`; tracked as
+item 7 of `vyapaar-runtime/docs/gaps/0007` (retitled to cover the content adapter). Commits:
+agent `98c66c2`, runtime `96e878f`, data `3ee4005`. All gates re-verified 2026-11-12 in both
+Rust repos — fmt / clippy `-D warnings` / `cargo test --workspace --profile prod` (agent 214
+passed, runtime 493 passed, 0 failed) and fresh `make prod` in both. Default-gate fix same
+session (agent `49124a8`): the live zenfinance GGUF inference tests are now `#[ignore]`d —
+with `models/zenfinance-3b-Instruct.Q4_K_M.gguf` present they ran minutes of real 3B inference
+inside the default gate, stalling `cargo test --workspace` repeatedly (same policy as 4B's
+OmniRoute live tests; runnable via `cargo test -p vyapaar-agent-llm --test candle_gguf_tests
+-- --ignored`).
 
-| Layer | Doc | Commit | Status |
-| :---: | :--- | :--- | :---: |
-| 0 | `vyapaar-core/0001` quant primitives (`quant.rs`: `QuantSeries`, `QuantError`, simple/log returns, realized/EWMA vol, rolling mean/stdev, Sharpe, max drawdown, correlation, beta; golden + proptest in `tests/quant_tests.rs` / `tests/quant_proptest.rs`) | `vyapaar-core` 9ce4880 | ✅ |
-| 1a | `vyapaar-ledger/0001` new `vyapaar-ledger-allocation` crate, Phase 1 (MeanVariance + RiskParity, `WeightBounds`, `PortfolioState::from_portfolio` read-adapter, `optimize()`, `TargetWeights` with custom serde; pure-Decimal Gauss-Jordan + damped risk-parity fixed point; 17 tests) | `vyapaar-ledger` b35a314 | ✅ |
-| 1b | `vyapaar-risk/0001` `ToolRiskHint` + `risk_classification(&Decision)` (DecisionKind doesn't exist in core → classify the closed `Decision` enum directly; exhaustive tests) | `vyapaar-risk` 5b00cda | ✅ |
-| 1c | `vyapaar-market/0001` Phase 1: 18 indicators (ichimoku, keltner_channels, parabolic_sar, cci, mfi, roc, trix, aroon, chaikin_money_flow, cmo, ultimate_oscillator, elder_ray, kst, vortex, fisher_transform, pivot_points, hull_ma, mass_index) + Phase 2: new `vyapaar-market-pricing` crate (Black-Scholes price/Greeks/IV, f64-internal/Decimal-boundary documented) | `vyapaar-market` ddb5c3f + 1983512 | ✅ |
-| 2 | `vyapaar-exec/0001` Phase 1 + `vyapaar-market/0001` Phase 3, run jointly — **broker wire-mapping verification/refactor**: exec-side confirmed ad-hoc match chains → new table-driven `BrokerEnumMap<T>` in `vyapaar-exec-core::wiring` (+ `OrderTypeKind` discriminant), per-broker `mapping` tables in `vyapaar-exec-zerodha`/`-upstox` (status/side/exchange/order-type, REST + ticker + postback + WS feed paths), parallel `tests/wire_mapping_tests.rs` + `tests/wiring_tests.rs`; market-side verified to have no wire code yet (4 placeholder crates + dhan stub) → documented as forward contract. Phase 2 crypto scope decision resolved **NO-GO** (recorded in the plan; Phase 3 skipped). | `vyapaar-exec` 2675c07 + ed3a6b3, `vyapaar-exec` (crypto no-go) | ✅ |
-| 2b | `vyapaar-adapters/0001` — Python/Rust adapter boundary **RESOLVED as Resolution 1** (dev/research convenience layer) + tracked broker coverage table + standing rules (Python = non-production/dev-research; Kotak/IIFL/Fyers-exec legitimately Python-only until Rust ports; new `vyapaar-market-*` crates must use the Layer-2 `BrokerEnumMap<T>` pattern). `vyapaar-ffi/0001` — Python-first quant engine bridge policy **ADOPTED** as standing policy, claims verified against `vyapaar-ffi-py` (Arrow `arrow_array_stream` PyCapsule bridge + `py.detach` GIL release). No code changed in either repo (decision/policy gates only). | `vyapaar-adapters` (doc), `vyapaar-ffi` (doc) | ✅ |
-| 3 | `vyapaar-strategies/0001` — **all 3 phases**: `StrategyManifest` (semver, module:Class, params, target instruments, absolute/weight capital allocation; validates params against the strategy class + instantiates) + `BasketManifest` (member weight-XOR-allocation refs, combined-capital budget ≤ cap, Phase-1 `RiskBudget` caps) + `PromotionStatus` promotion workflow (one stage forward: draft→backtested→paper→live, status-prefixed evidence refs). POC sidecars `manifests/strategies/{turtle_breakout,twap_slicer}.toml` + `manifests/baskets/turtle_twap_basket.toml`; Zone 4 JSON schemas + `tools/validate_manifests.py`; 42 tests in `tests/manifests/`. Gate: pytest 119/119, ruff, mypy PASS. Runtime consumption cross-ref only (no `vyapaar-runtime` changes). | `vyapaar-strategies` 207a70c | ✅ |
-| 4A | `vyapaar-agent/0003` — **all 3 phases**: new `vyapaar-agent-forecast` (Theta/ETS(SES/Holt/HW)/ARIMA(p,d,q)/simplified-TBATS/gradient-boosted trees over lag+rolling features; Decimal boundary via `vyapaar-core::QuantSeries`, f64-internal math documented; MCP tool `vyapaar_forecast_series` + `ForecastService` + result/v1 envelope) + `vyapaar-agent-analytics::factor_attribution` (Barra-style return/risk attribution → `DisplayBlock` MetricGrid+Table; added `vyapaar-agent-core::result` envelope types) + new `vyapaar-agent-panel` (fixed/random effects, Fama-MacBeth two-pass, 2SLS IV/GMM + Sargan J, GRS joint alpha test with F p-value). 32 new tests across the three crates + MCP tool tests. | `vyapaar-agent` 36b0d53 + 1f9fb13 | ✅ |
-| 4B | `vyapaar-agent/0004` — **Phases 1–3**: resolved duplicate `LlmProvider` trait (canonical = `vyapaar-agent-llm`; core trait deleted, replay re-pointed); `OpenAiCompatibleProvider` (OpenAI `/chat/completions` + SSE stream→`ChatStreamEvent` mapping, `DecisionParser::parse_str` reuse); `VYAPAAR_LLM_{BASE_URL,API_KEY,MODEL}` env config; `FreeTierPolicy` Off/Warn/Enforce guardrail w/ free-model allowlist; `LlmAuditRecord.provider` field (+ replay hash-chain inclusion); `TraderLoop::run()` wired prompt→generate→`DecisionParser` validate→risk gate; chat example `omniroute_chat.rs` + research `ResearchLlm` + report `narrate_report` injections; golden fixtures + risk-gate acceptance oracle (`OmnirouteFixtureSet::accept_candidate`) + `#[ignore]`d per-workload OmniRoute integration tests. **Phase 4 (local SLM) deliberately deferred** per the plan's strict ordering. | `vyapaar-agent` 51b024d + 236f8eb + 5470e7b | ✅ (P1–P3) |
-| 5 | `vyapaar-ui/0005` — **all 3 phases** (FinceptTerminal screen inventory): `vyapaar-ui-core` primitives (`BacktestSummary`/`BacktestResultView`, `PortfolioViewModel`+position/holding/totals rows, `AlgoRow`/`AlgoManagerViewModel`/`AlgoStatus`, `WatchlistViewModel`) all Decimal-exact/zero-I/O/WASM-safe; `vyapaar-ui-app` features (`WatchlistFeature` folds Tick/Bar, `BacktestFeature` run lifecycle+equity curve, `PortfolioFeature` ingests `PortfolioSnapshot`, `AlgosFeature`), router gained `Backtest`/`Portfolio`/`Algos` routes; `vyapaar-tui` seven-tab workstation (Watchlist, Screener, Portfolio, Orders, Backtest, Algos, AgentChat) starting on Watchlist. Two-screener question **resolved** (UI builds only on `vyapaar_core::screener`; `vyapaar-market-indicators::screener` is a standalone duplicate ignored). Gap filed `vyapaar-ui/docs/gaps/0001-cli-ask-scan-not-wired.md`. Gate: 151 tests, fmt/clippy clean, `wasm32-unknown-unknown` check green. | `vyapaar-ui` 2cda245 + acdc137 | ✅ |
-| 6 | `vyapaar-examples/0001` + `vyapaar-docs/0002` — the **triggered deferred set**. `vyapaar-examples`: one runnable example per shipped engine — `12_portfolio_allocation` (`vyapaar-ledger-allocation` mirror), `13_black_scholes_greeks` (`vyapaar-market-pricing` mirror; documented f64-internal/Decimal-boundary exception), `14_timeseries_forecast` (`vyapaar-agent-forecast` Theta), `15_fama_macbeth_factor_regression` (`vyapaar-agent-panel`), shared exact-Decimal helpers in `vyapaar_examples/quant.py` (`returns`/`mean`/`std_dev`/`covariance_matrix`/`solve_linear_system`/`ols`), per-example regression tests; plan 0001 marked implemented. Gate: 21 tests, ruff check/format, `mypy vyapaar_examples` PASS. `vyapaar-docs`: `docs/ai/fincept-vs-quantcept.md` (terminology disambiguation, no gate) + `docs/ai/omniroute_setup.md` (OmniRoute local setup, `VYAPAAR_LLM_*` env wiring, `FreeTierPolicy` guardrail; gated on 0004 Phase 2 which shipped), linked from `docs/ai/index.md` + nav; plan 0002 marked implemented. Gate: `mkdocs build --strict` PASS. | `vyapaar-examples` 552c873, `vyapaar-docs` 1267490 | ✅ |
-| 7 | `vyapaar-data/0002` — filings/econ-series breadth. **Still gated** per its own doc: no concrete consumer yet; do not build a speculative filings pipeline. Revisit when a screener field or research hypothesis needs filings data. | — | ⏸ |
+## Prior batches (collapsed per `.agents/rules/handoff-hygiene.md`)
 
-This session: implemented `vyapaar-ledger` plan 0002 (`vyapaar-ledger-performance`
-crate, `vyapaar-ledger` `2a3a04e`), `vyapaar-data` gaps 0001+0002 (`vyapaar-data`
-`261d646`), and `vyapaar-runtime` plan 0003 (`vyapaar-runtime` REST wrapper for
-trade-journal + market reference). Ledger plan 0002: trade-performance journal
-(annotations + analytics engine), pure/zero-I/O/zero-float, 40 tests. Data
-gap 0001: calendar ingestion with `CalendarEvent` domain, `CalendarReader`
-port, `DuckDbCalendarStore`, `LakehouseCalendarReader`, stubbed data stopgap
-(tracked by `vyapaar-data/docs/gaps/0003-*.md`). Data gap 0002: symbol-profile
-ingestion with `SymbolProfile` domain, `ProfileReader` port, `DuckDbProfileStore`,
-`LakehouseProfileReader`, yfinance provider (graceful degradation). Runtime
-plan 0003: `/trade-journal/*` (accounts, overview, trades, calendar, notes,
-compare) backed by `vyapaar-ledger-performance`, plus `/market-data/symbol-profile/:id`
-and `/market-data/calendar` (sample-data stores pending the vyapaar-data FFI
-bridge). Routes + OpenAPI registered; 12 + 5 + 5 tests. `cargo fmt/clippy -- -D
-warnings`, `cargo test --workspace --profile prod` clean. The full dependency
-chain (ledger plan 0002 → data gaps 0001+0002 → runtime plan 0003) is now
-complete.
-
-Key decisions: vyapaar-core enables `rust_decimal` `maths` feature (pure-Decimal `sqrt`/`ln`, no floats). Layer 2 refactor was Red-Green on new tests with the existing conformance/rest/ticker/postback suites untouched and green; `BrokerEnumMap::get` is ASCII case-insensitive (brokers emit both `COMPLETE` and `complete`), canonical→wire payload building left as exhaustive matches (no unmapped fallback, out of the doc's scope). **Crypto execution is NO-GO** — no `vyapaar-exec-{exchange}` crate, no crypto adapter anywhere; the decision is recorded and revisitable only via fresh scope review. Python adapters are dev/research-only for brokers with a Rust production path. `vyapaar-risk` commit does not bump any risk-gate behavior. **Layer 6 decisions**: examples mirror each Rust engine's public semantics in exact `Decimal` (Black-Scholes keeps the pricing crate's documented `f64`-internal/`Decimal`-boundary exception); docs quote the real `VYAPAAR_LLM_*` constants and `FreeTierPolicy` from `vyapaar-agent-llm`, not placeholders. **Layer 4 decisions**: the duplicate `LlmProvider` trait in `vyapaar-agent-core` was deleted (nothing outside it used it — replay re-pointed to the canonical `vyapaar-agent-llm` trait); `LlmAuditRecord.provider` is folded into the replay hash chain (schema evolved, no golden hashes existed); forecast/panel compute in `f64` internally with exact `Decimal` at the boundary (matching the `vyapaar-agent-analytics` convention; zero floats still cross money/price/quantity paths); `vyapaar_search_tools`/`vyapaar_describe_tool` gateway (0001 Phase 1) does not exist yet, so the forecast engine is exposed through the existing `tools/list` surface (`vyapaar_forecast_series`, category `forecast`) and the result/v1 envelope types were added to `vyapaar-agent-core::result`; 0004 Phase 4 (local SLM) is deferred by design.
+- **Plan 0006 Phases 1–2 (2026-11-11)** — Phase 1 `BlockDealsTool` (new
+  `MarketReader::block_deals`, honest runtime stub citing `vyapaar-data` gap 0005, seedable
+  `RuntimeMarketReader` store; runtime plan 0004 Phases 1–3) and Phase 2 `PriceAlertTool` CRUD
+  (`AlertReader`/`AlertWriter` port, `price_alert_list`/`price_alert`, LocalWrite bundle kept
+  outside the all-ReadOnly count pin; runtime storage = existing `Profile.alerts` document via
+  `chat_alerts.rs::ProfileAlertStore`). Catalogue went 14 → 15 read-only + 2 alert tools across
+  the two phases. Repo HANDOFFs and plan docs carry the detail (agent `a72689c`, runtime
+  `d54f140`).
+- **Fincept/Quantcept gap-closure batch (2026-11-06)** — Layers 0, 1, 2, 2b, 3, 4, 5, 6 GREEN
+  (full per-layer table with commits kept in git history of this file; `vyapaar-core` 9ce4880,
+  `vyapaar-ledger` b35a314, `vyapaar-risk` 5b00cda, `vyapaar-market` ddb5c3f+1983512,
+  `vyapaar-exec` 2675c07+ed3a6b3, `vyapaar-strategies` 207a70c, `vyapaar-agent` 36b0d53/1f9fb13/
+  51b024d/236f8eb/5470e7b, `vyapaar-ui` 2cda245+acdc137, `vyapaar-examples` 552c873,
+  `vyapaar-docs` 1267490). Key decisions preserved: core enables rust_decimal `maths`;
+  `BrokerEnumMap<T>` table-driven wire mapping (Layer 2); **crypto execution NO-GO** (fresh
+  scope review required to revisit); Python adapters dev/research-only; forecast/panel compute
+  f64-internal with exact-Decimal boundaries; duplicate `LlmProvider` in agent-core deleted in
+  favor of `vyapaar-agent-llm`; 0004 Phase 4 local SLM deferred by design. Session also landed
+  `vyapaar-ledger` plan 0002 (`vyapaar-ledger-performance`, 2a3a04e), `vyapaar-data` gaps
+  0001+0002 (261d646), `vyapaar-runtime` plan 0003 (trade-journal + market-reference endpoints;
+  sample stores pending the `vyapaar-data` → Rust FFI bridge).
 
 ## Prior work (collapsed per `.agents/rules/handoff-hygiene.md`)
 
@@ -61,10 +69,12 @@ Key decisions: vyapaar-core enables `rust_decimal` `maths` feature (pure-Decimal
   - `vyapaar-ui`: **PLAN-0001 Stage 4 CLI half landed** — `vyapaar jobs run/tick/logs` on the runtime pool + per-run journals (`vyapaar jobs add ... -> tick -> journal verified` acceptance suite, 11 e2e tests) + agent tool-call journals + approvals gating (`0b9241d`); clippy-driven fixups (breach-first refusal for PendingApproval jobs) follow-up. Open: ui-core trade rows (`vyapaar-ui/docs/gaps/0002`).
 
 ## Immediate Next Step
-1. The bottoms-up build order is **complete through Layer 6**. The only remaining item is
-   **Level 7**: `vyapaar-data/0002` (filings/econ-series breadth) — still gated on a concrete
-   consumer per its own doc; do not build a speculative filings pipeline. Revisit when a screener
-   field or research hypothesis actually needs filings data.
+1. Plan 0006 Phase 4 (`OptionsChainTool`/`CorporateActionsTool`) stays blocked: research-verify
+   that `vyapaar-market`/`vyapaar-data` still lack options-chain and corporate-actions readers,
+   then file the two §1.3 gaps in their provider repos **before** any tool code. Separately,
+   closing `vyapaar-data/docs/gaps/0007-filings-rust-bridge.md` (the standing `vyapaar-data` →
+   Rust FFI bridge) unblocks both the chat `filings_search` tool and the runtime market-reference
+   sample stores.
 2. Remaining per-repo follow-ups (non-blocking, tracked in each repo's HANDOFF / `docs/gaps/`):
    - **4B Phase 4 (local SLM)** — deferred by design; prerequisite is the Phase-3 golden fixture set accumulating via live OmniRoute runs (`VYAPAAR_WRITE_FIXTURES=1`), then model licensing/fine-tuning/quantization per `0005`.
    - **0001 Phase 1** (`vyapaar_search_tools`/`vyapaar_describe_tool` two-tier gateway) — the forecast engine is currently discoverable via `tools/list` only; once the gateway lands, add the `forecast` category to its category enum.
