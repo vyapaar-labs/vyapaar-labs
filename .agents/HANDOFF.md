@@ -3,36 +3,41 @@
 **Status**: Bottoms-up Fincept/Quantcept gap-closing build order
 (`docs/future-work-bottoms-up-build-order.md`) — Layers 0, 1, 2, 2b, 3, 4, 5, 6 GREEN;
 Level 7 (`vyapaar-data/0002`, filings breadth) partially superseded: filings ingestion itself
-landed (closed gap `vyapaar-data/docs/gaps/0003`), and plan 0006 Phase 3 (2026-11-12) is the
-first concrete Rust-side consumer — blocked only on the new
-`vyapaar-data/docs/gaps/0007-filings-rust-bridge.md`.
+landed (closed gap `vyapaar-data/docs/gaps/0003`). Agent-side **plan 0006 (MCP/chat tool
+catalog expansion) is complete** — all 4 phases landed and the plan doc retired to
+`vyapaar-agent/docs/plans/README.md`'s Implemented table; follow-on breadth now tracked under
+agent plan 0007. Two upstream bridges remain open on the provider side:
+`vyapaar-data/docs/gaps/0007-filings-rust-bridge.md` (filings) and
+`vyapaar-market/docs/gaps/0001-options-chain-reader.md` +
+`vyapaar-data/docs/gaps/0008`/`0009` (options chain, corporate actions).
 Date: 2026-11-12 · Workspace: `/home/pmallapp/Devel/Finance/vyapaar-labs`
 Playbook: `docs/future-work-bottoms-up-build-order.md` (execution order, by crate dependency
 depth). The repo-migration (`honba-*` → `vyapaar-*`, Tier 0–6) that used to be this file's whole
 subject is complete and long superseded — see "Prior work" below.
 
-## Latest Batch — plan 0006 Phase 3: `news_search`/`filings_search` chat tools (agent + runtime + data)
+## Latest Batch — plan 0006 Phase 4: `options_chain`/`corporate_actions` chat tools (agent + market + data)
 
-Date: 2026-11-12. Upstream check first (as the plan directed): filings ingestion exists in
-Python `vyapaar-data` (closed gap 0003) but has no Rust-consumer bridge; news has no source
-anywhere — so this was **not** pure tool-layer wiring. Landed: new `ContentReader` port +
-`NewsArticle`/`FilingRecord` DTOs (`vyapaar-agent-chat-tools/src/ports/content.rs`),
-`news_search` + `filings_search` tools (`src/content.rs`, both ReadOnly, catalogue count
-**15 → 17**), runtime side `chat_content.rs::FeedContentReader` with honest
-`PortError::unavailable` stubs. Gaps filed in the provider repo at implementation time:
-`vyapaar-data/docs/gaps/0006-news-ingestion.md` + `0007-filings-rust-bridge.md`; tracked as
-item 7 of `vyapaar-runtime/docs/gaps/0007` (retitled to cover the content adapter). Commits:
-agent `98c66c2`, runtime `96e878f`, data `3ee4005`. All gates re-verified 2026-11-12 in both
-Rust repos — fmt / clippy `-D warnings` / `cargo test --workspace --profile prod` (agent 214
-passed, runtime 493 passed, 0 failed) and fresh `make prod` in both. Default-gate fix same
-session (agent `49124a8`): the live zenfinance GGUF inference tests are now `#[ignore]`d —
-with `models/zenfinance-3b-Instruct.Q4_K_M.gguf` present they ran minutes of real 3B inference
-inside the default gate, stalling `cargo test --workspace` repeatedly (same policy as 4B's
-OmniRoute live tests; runnable via `cargo test -p vyapaar-agent-llm --test candle_gguf_tests
--- --ignored`).
+Date: 2026-11-12. Research-verified upstream first (plan §4's mandated re-check): `vyapaar-market`
+has contract-reference/Greeks building blocks but no chain reader; `vyapaar-data`'s
+corporate-actions reader **does** exist Python-side (the plan's "no reader" assumption was
+stale). Gaps filed before any tool code: `vyapaar-market/docs/gaps/0001-options-chain-reader.md`
+(that repo's first gap), `vyapaar-data/docs/gaps/0008-corporate-actions-rust-bridge.md` +
+`0009-corporate-actions-ingestion.md`. Landed: `OptionContract`/`OptionsChain`/
+`CorporateAction` DTOs + `MarketReader::options_chain`/`corporate_actions` port methods,
+`options_chain` + `corporate_actions` ReadOnly tools (catalogue **17 → 19**), runtime
+`FeedMarketReader` honest stubs + seedable `RuntimeMarketReader` stores. **Plan 0006 is now
+complete (Phases 1–4)** — doc retired per gap-tracking §4, recorded in agent's
+`docs/plans/README.md` Implemented table; follow-on breadth continues under agent plan 0007
+(master MCP-ecosystem guide, committed `a0817a6` after its README reference landed one commit
+early in 127597d). Commits: agent `127597d` + `a0817a6`, market `d4e3c76`, data `0bc5edd`. All
+gates re-verified 2026-11-12 in `vyapaar-agent` — fmt / clippy `-D warnings` /
+`cargo test --workspace --profile prod` (all green) and fresh `make prod`.
 
 ## Prior batches (collapsed per `.agents/rules/handoff-hygiene.md`)
 
+- **Plan 0006 Phase 3 (2026-11-12)** — `news_search`/`filings_search` via new `ContentReader`
+  port (catalogue 15 → 17); gaps `vyapaar-data/docs/gaps/0006`+`0007` filed. Commits: agent
+  `98c66c2`, runtime `96e878f`, data `3ee4005`.
 - **Plan 0006 Phases 1–2 (2026-11-11)** — Phase 1 `BlockDealsTool` (new
   `MarketReader::block_deals`, honest runtime stub citing `vyapaar-data` gap 0005, seedable
   `RuntimeMarketReader` store; runtime plan 0004 Phases 1–3) and Phase 2 `PriceAlertTool` CRUD
@@ -69,12 +74,12 @@ OmniRoute live tests; runnable via `cargo test -p vyapaar-agent-llm --test candl
   - `vyapaar-ui`: **PLAN-0001 Stage 4 CLI half landed** — `vyapaar jobs run/tick/logs` on the runtime pool + per-run journals (`vyapaar jobs add ... -> tick -> journal verified` acceptance suite, 11 e2e tests) + agent tool-call journals + approvals gating (`0b9241d`); clippy-driven fixups (breach-first refusal for PendingApproval jobs) follow-up. Open: ui-core trade rows (`vyapaar-ui/docs/gaps/0002`).
 
 ## Immediate Next Step
-1. Plan 0006 Phase 4 (`OptionsChainTool`/`CorporateActionsTool`) stays blocked: research-verify
-   that `vyapaar-market`/`vyapaar-data` still lack options-chain and corporate-actions readers,
-   then file the two §1.3 gaps in their provider repos **before** any tool code. Separately,
-   closing `vyapaar-data/docs/gaps/0007-filings-rust-bridge.md` (the standing `vyapaar-data` →
-   Rust FFI bridge) unblocks both the chat `filings_search` tool and the runtime market-reference
-   sample stores.
+1. Plan 0006 is complete (Phases 1–4); agent plan 0007 is the active follow-on master guide for
+   future chat-tool/MCP-gateway breadth. Closing `vyapaar-data/docs/gaps/0007-filings-rust-bridge.md`
+   (the standing `vyapaar-data` → Rust FFI bridge) unblocks both the chat `filings_search` tool
+   and the runtime market-reference sample stores; `vyapaar-market/docs/gaps/0001` +
+   `vyapaar-data/docs/gaps/0008`/`0009` similarly block the options-chain/corporate-actions tools
+   from returning real data (both currently answer with honest `PortError::unavailable`).
 2. Remaining per-repo follow-ups (non-blocking, tracked in each repo's HANDOFF / `docs/gaps/`):
    - **4B Phase 4 (local SLM)** — deferred by design; prerequisite is the Phase-3 golden fixture set accumulating via live OmniRoute runs (`VYAPAAR_WRITE_FIXTURES=1`), then model licensing/fine-tuning/quantization per `0005`.
    - **0001 Phase 1** (`vyapaar_search_tools`/`vyapaar_describe_tool` two-tier gateway) — the forecast engine is currently discoverable via `tools/list` only; once the gateway lands, add the `forecast` category to its category enum.
