@@ -29,9 +29,12 @@ stale). Gaps filed before any tool code: `vyapaar-market/docs/gaps/0001-options-
 complete (Phases 1–4)** — doc retired per gap-tracking §4, recorded in agent's
 `docs/plans/README.md` Implemented table; follow-on breadth continues under agent plan 0007
 (master MCP-ecosystem guide, committed `a0817a6` after its README reference landed one commit
-early in 127597d). Commits: agent `127597d` + `a0817a6`, market `d4e3c76`, data `0bc5edd`. All
-gates re-verified 2026-11-12 in `vyapaar-agent` — fmt / clippy `-D warnings` /
-`cargo test --workspace --profile prod` (all green) and fresh `make prod`.
+early in 127597d). Runtime side landed as `bcd1c76` — `FeedMarketReader` stubs, seedable
+`RuntimeMarketReader::set_options_chain`/`set_corporate_actions` stores + `chat_adapters_tests`
+coverage, runtime gap 0007 items 8–9, runtime HANDOFF. Commits: agent `127597d` + `a0817a6`,
+runtime `bcd1c76`, market `d4e3c76`, data `0bc5edd`. All gates re-verified 2026-11-12 in both
+Rust repos — fmt / clippy `-D warnings` / `cargo test --workspace --profile prod` (0 failed in
+each) and fresh `make prod` in each.
 
 ## Prior batches (collapsed per `.agents/rules/handoff-hygiene.md`)
 
