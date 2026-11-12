@@ -16,6 +16,20 @@ subject is complete and long superseded — see "Prior work" below.
 
 ## Latest Batch — resolve rebase conflicts (vyapaar-agent, vyapaar-data, vyapaar-adapters, vyapaar-market)
 
+## Latest Batch — re-write `vyapaar-ffi`/`vyapaar-market` docs (dismantle roadmap into design/gaps/plans)
+
+Date: 2026-11-12. Dismantled `docs/roadmap/` in both repos and re-wrote
+`docs/{design,gaps,plans}` to reflect the source code:
+- `vyapaar-market`: per-module `code-*.md` design docs (core, finance, normalizer,
+  indicators, signals, pricing, store, feed, loaders, brokers) + rewritten
+  `architecture.md` + `code-migration-map.md`; new per-repo gaps 0003 (broker WS feed
+  stubs) and 0004 (feed/loaders stubs) cross-referencing root gaps 0001/0002; `roadmap/`
+  removed.
+- `vyapaar-ffi`: added `code-orders/market/decision/risk/error/sdk` design docs + rewritten
+  `architecture.md`; created first-ever `docs/gaps/` (0001 CLI stub subcommands, 0002 unused
+  `vyapaar-market-*` workspace deps); `roadmap/` removed.
+- No code changes; committed per-repo.
+
 Date: 2026-11-12. Resolved merge conflicts arising during interactive rebase onto `origin/main`:
 - `vyapaar-agent`: Resolved plan numbering collision between upstream roadmap dismantling
   (renumbered active plans to 0008/0009) and the institutional/smart-money flow detection suite.
