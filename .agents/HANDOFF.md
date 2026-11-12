@@ -14,58 +14,40 @@ Playbook: `docs/future-work-bottoms-up-build-order.md` (execution order, by crat
 depth). The repo-migration (`honba-*` → `vyapaar-*`, Tier 0–6) that used to be this file's whole
 subject is complete and long superseded — see "Prior work" below.
 
-## Latest Batch — resolve rebase conflicts (vyapaar-agent, vyapaar-data, vyapaar-adapters, vyapaar-market)
-
-## Latest Batch — re-write `vyapaar-ffi`/`vyapaar-market` docs (dismantle roadmap into design/gaps/plans)
+## Latest Batch — re-write `vyapaar-risk`/`vyapaar-strategies` docs (dismantle roadmap into design/gaps/plans)
 
 Date: 2026-11-12. Dismantled `docs/roadmap/` in both repos and re-wrote
-`docs/{design,gaps,plans}` to reflect the source code:
-- `vyapaar-market`: per-module `code-*.md` design docs (core, finance, normalizer,
-  indicators, signals, pricing, store, feed, loaders, brokers) + rewritten
-  `architecture.md` + `code-migration-map.md`; new per-repo gaps 0003 (broker WS feed
-  stubs) and 0004 (feed/loaders stubs) cross-referencing root gaps 0001/0002; `roadmap/`
-  removed.
-- `vyapaar-ffi`: added `code-orders/market/decision/risk/error/sdk` design docs + rewritten
-  `architecture.md`; created first-ever `docs/gaps/` (0001 CLI stub subcommands, 0002 unused
-  `vyapaar-market-*` workspace deps); `roadmap/` removed.
-- No code changes; committed per-repo.
-
-Date: 2026-11-12. Resolved merge conflicts arising during interactive rebase onto `origin/main`:
-- `vyapaar-agent`: Resolved plan numbering collision between upstream roadmap dismantling
-  (renumbered active plans to 0008/0009) and the institutional/smart-money flow detection suite.
-  Renumbered smart-money plan to `0010`, updated upstream gap dependencies to data `0013`/`0014`,
-  and updated `docs/plans/README.md` and `.agents/HANDOFF.md`. Rebased to `32b37c7`.
-- `vyapaar-data`: Resolved gap numbering collision between upstream roadmap dismantling
-  (which claimed 0010–0012) and the new FII/DII flow and delivery percentage gaps.
-  Renumbered them to gaps `0013` and `0014`, linked to agent plan `0010`, and updated
-  `docs/gaps/README.md`. Rebased to `a370be5`.
-- `vyapaar-adapters`: Resolved rebase conflicts against dismantled roadmap (confirmed removal
-  of `docs/roadmap/`), merged competing `code-config.md` additions, folded Phase D (Improvements)
-  into active plan `0002`, preserved plans `0003` & `0004`, integrated section 5 per-module doc
-  map in `architecture.md`, and updated gaps `0001`–`0007`. Rebased to `8d7c440`.
-- `vyapaar-market`: Updated plan reference in gap `0002-open-interest-history-and-buildup-tracking.md`
-  from agent plan 0008 to 0010. Committed as `87ed5aa`.
-- All submodule working trees clean, `pytest` passes in `vyapaar-adapters` (44 passed) and
-  `vyapaar-data` (86 passed).
-
-## Latest Batch — crate topology audit & consolidation docs (design + plan 0003 + gaps 0001–0008)
-
-Date: 2026-11-12. Audited the crate arrangement across all 9 Rust workspaces (72 crates, verified
-by direct inspection). Verdict: repo-per-bounded-context split is correct and stays; intra-repo
-inventory is over-inflated. Filed at root: `docs/design/0001-crate-topology-audit-and-target.md`
-(72 → ~60 target, delete 12 stub/duplicate crates), `docs/plans/0003-crate-topology-consolidation.md`
-(5-phase plan), and `docs/gaps/README.md` + `0001`–`0008` (market broker WS stubs, market feed/
-loaders stubs, runtime `vyapaar-indicators` duplicate, runtime-feed shim, runtime market/test-utils
-stubs, exec-angelone stub, facade-convention inconsistency, runtime legacy honba aliases). Also
-trimmed stale agent-chatter lines from `docs/plans/README.md`. No code changes in this batch; next
-step is executing plan 0003 Phase 1 (market stub removal) per-repo with `make prod` gates.
+`docs/{design,gaps,plans}` to reflect the source code (same pattern as the earlier
+`vyapaar-ledger`/`vyapaar-ffi`/`vyapaar-market` batches):
+- `vyapaar-risk`: rewritten `architecture.md` + all `code-*.md` design docs to match actual
+  source (removed fake `algo_id` regex, fake `risk_refusals`/`risk_approvals`/`algo_halted`/
+  `kill_switch_activated` metrics, non-existent `global_kill_switch()` method, and the
+  `Emergency` tool hint). Created first-ever `docs/gaps/` (0001 `price_collar_bps` unenforced,
+  0002 reduce-only not enforced, 0003 `check_order_fast` scrip-OTR/warning/cooldown divergence,
+  0004 `OtrConfig` window knobs never read) + `docs/plans/0002-close-declared-unenforced-risk-controls.md`
+  collecting them; `implementation-record.md` added; `roadmap/` removed.
+- `vyapaar-strategies`: rewritten `architecture.md` + `code-{sdk,strategies,manifest,migration-map}.md`
+  (dropped nonexistent `stop_loss()` helper, documented `on_tick` as an undispatched stub).
+  Created first-ever `docs/gaps/` (0001 `on_tick` never dispatched, 0002 no live `StrategyContext`
+  in-repo, 0003 catalog step.toml is declarative-only, 0004 no `BasketManifest` run loop, 0005
+  `RiskBudget` is a Phase-1 simple cap) + `implementation-record.md`; `roadmap/` removed.
+- `vyapaar-ledger`: already dismantled (commit `06df5ad`, 2026-11-12) — verified current, no changes.
+- No code changes; committed per-repo. All gap claims source-verified (grep) at filing time.
 
 ## Prior batches (collapsed per `.agents/rules/handoff-hygiene.md`)
 
+- **Resolve rebase conflicts (vyapaar-agent, vyapaar-data, vyapaar-adapters, vyapaar-market, 2026-11-12)**:
+  agent plan renumbering to 0008/0009/0010 + data gaps 0013/0014; adapters rebased to `8d7c440` (plan 0002
+  folded, gaps 0001–0007 refreshed); market `87ed5aa`; `pytest` green (adapters 44, data 86).
+- **`vyapaar-ffi`/`vyapaar-market` docs (dismantle roadmap, 2026-11-12)**: per-module `code-*.md`
+  design docs + first-ever `docs/gaps/` (market 0003/0004 cross-ref root gaps 0001/0002; ffi 0001 CLI
+  subcommand stubs, 0002 unused `vyapaar-market-*` deps); `roadmap/` removed in both; committed per-repo.
+- **Crate topology audit & consolidation docs (2026-11-12)**: root `docs/design/0001-crate-topology-audit-and-target.md`
+  (72 → ~60 target), `docs/plans/0003-crate-topology-consolidation.md` (5-phase plan), `docs/gaps/0001`–`0008`
+  (market broker WS stubs, feed/loaders stubs, runtime indicator duplicate, runtime-feed shim, runtime
+  market/test-utils stubs, exec-angelone stub, facade-convention inconsistency, runtime legacy honba aliases).
 - **Adapters documentation sync (vyapaar-adapters + vyapaar-docs, 2026-11-12)**:
-  `vyapaar-adapters` per-module design docs (`code-parse.md`, `code-config.md`,
-  `code-codec.md`, `code-public-api.md`), gaps 0001–0007 refreshed; `vyapaar-docs` updated
-  with `docs/api/adapters-package.md`, `india/adapter_configuration.md`, etc.
+  per-module design docs, gaps 0001–0007 refreshed; `vyapaar-docs` updated.
 
 - **Plan 0006 Phase 4 (2026-11-12)** — `options_chain`/`corporate_actions` chat
   tools; research re-verified upstream first (`vyapaar-market` had no chain
