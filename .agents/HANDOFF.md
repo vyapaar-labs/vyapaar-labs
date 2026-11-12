@@ -10,7 +10,7 @@ agent plan 0007. Two upstream bridges remain open on the provider side:
 `vyapaar-data/docs/gaps/0007-filings-rust-bridge.md` (filings) and
 `vyapaar-market/docs/gaps/0001-options-chain-reader.md` +
 `vyapaar-data/docs/gaps/0008`/`0009` (options chain, corporate actions).
-Date: 2026-11-12 · Workspace: `/home/pmallapp/Devel/Finance/vyapaar-labs`
+Date: 2026-11-12 · Workspace: `vyapaar-labs`
 Playbook: `docs/future-work-bottoms-up-build-order.md` (execution order, by crate dependency
 depth). The repo-migration (`honba-*` → `vyapaar-*`, Tier 0–6) that used to be this file's whole
 subject is complete and long superseded — see "Prior work" below.
