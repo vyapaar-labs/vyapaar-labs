@@ -11,17 +11,13 @@ Per workspace rule `.agents/rules/gap-tracking.md`:
 | # | Title | Target Scope | Status |
 |---|-------|--------------|--------|
 | [0001](0001-fincept-quantcepts-gap-closure-and-feature-roadmap.md) | Fincept & Quantcepts Feature Parity, Gap Closure, and Platform Expansion Master Plan | Platform-wide | Approved Architecture & Implementation Roadmap |
+| [0003](0003-crate-topology-consolidation.md) | Crate Topology Consolidation: remove stub/duplicate crates and pin the facade convention | `vyapaar-market`, `vyapaar-exec`, `vyapaar-runtime` (+ facade convention, all Rust workspaces) | Proposed (covers `docs/gaps/0001`–`0008`) |
 
 ## Implemented Plans
 
 | # | Title | Target Scope | Implemented In |
 |---|-------|--------------|----------------|
 | 0002 | Strategy Execution, Hyperparameter Tuning, and Optimal Trade Suggestion Engine for CLI & TUI | `vyapaar-agent`, `vyapaar-ui`, `vyapaar-runtime` | Phases 1–5 Complete (`vyapaar-agent` 85d3c07, `vyapaar-ui` 1beb69f + 06940c5, `vyapaar-runtime` 60a5bd9) |
-
-
-I have launched task-112 to search for references to root plan 0002. I will wait for it to complete before proceeding.
-
-I have added the rule to `.agents` and cleaned up the implemented plans and gaps across all repositories in the workspace.
 
 ### 1. Updated `.agents` Rules
 Updated [`.agents/rules/gap-tracking.md`](../../.agents/rules/gap-tracking.md) and [`.agents/AGENTS.md`](../../.agents/AGENTS.md) (§9) with the binding **Plan & Gap Tracking Rule**:

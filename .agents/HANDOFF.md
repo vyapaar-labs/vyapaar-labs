@@ -34,6 +34,18 @@ Date: 2026-11-12. Resolved merge conflicts arising during interactive rebase ont
 - All submodule working trees clean, `pytest` passes in `vyapaar-adapters` (44 passed) and
   `vyapaar-data` (86 passed).
 
+## Latest Batch — crate topology audit & consolidation docs (design + plan 0003 + gaps 0001–0008)
+
+Date: 2026-11-12. Audited the crate arrangement across all 9 Rust workspaces (72 crates, verified
+by direct inspection). Verdict: repo-per-bounded-context split is correct and stays; intra-repo
+inventory is over-inflated. Filed at root: `docs/design/0001-crate-topology-audit-and-target.md`
+(72 → ~60 target, delete 12 stub/duplicate crates), `docs/plans/0003-crate-topology-consolidation.md`
+(5-phase plan), and `docs/gaps/README.md` + `0001`–`0008` (market broker WS stubs, market feed/
+loaders stubs, runtime `vyapaar-indicators` duplicate, runtime-feed shim, runtime market/test-utils
+stubs, exec-angelone stub, facade-convention inconsistency, runtime legacy honba aliases). Also
+trimmed stale agent-chatter lines from `docs/plans/README.md`. No code changes in this batch; next
+step is executing plan 0003 Phase 1 (market stub removal) per-repo with `make prod` gates.
+
 ## Prior batches (collapsed per `.agents/rules/handoff-hygiene.md`)
 
 - **Adapters documentation sync (vyapaar-adapters + vyapaar-docs, 2026-11-12)**:
