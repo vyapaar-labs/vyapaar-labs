@@ -4,9 +4,8 @@
 (`docs/future-work-bottoms-up-build-order.md`) — Layers 0, 1, 2, 2b, 3, 4, 5, 6 GREEN;
 Level 7 (`vyapaar-data/0002`, filings breadth) partially superseded: filings ingestion itself
 landed (closed gap `vyapaar-data/docs/gaps/0003`). Agent-side **plan 0006 (MCP/chat tool
-catalog expansion) is complete** — all 4 phases landed and the plan doc retired to
-`vyapaar-agent/docs/plans/README.md`'s Implemented table; follow-on breadth now tracked under
-agent plan 0007. Two upstream bridges remain open on the provider side:
+catalog expansion) is complete**; follow-on breadth tracked under agent plan 0007. Two
+upstream bridges remain open on the provider side:
 `vyapaar-data/docs/gaps/0007-filings-rust-bridge.md` (filings) and
 `vyapaar-market/docs/gaps/0001-options-chain-reader.md` +
 `vyapaar-data/docs/gaps/0008`/`0009` (options chain, corporate actions).
@@ -15,42 +14,63 @@ Playbook: `docs/future-work-bottoms-up-build-order.md` (execution order, by crat
 depth). The repo-migration (`honba-*` → `vyapaar-*`, Tier 0–6) that used to be this file's whole
 subject is complete and long superseded — see "Prior work" below.
 
-## Latest Batch — plan 0006 Phase 4: `options_chain`/`corporate_actions` chat tools (agent + market + data)
+## Latest Batch — adapters documentation sync (vyapaar-adapters + vyapaar-docs)
 
-Date: 2026-11-12. Research-verified upstream first (plan §4's mandated re-check): `vyapaar-market`
-has contract-reference/Greeks building blocks but no chain reader; `vyapaar-data`'s
-corporate-actions reader **does** exist Python-side (the plan's "no reader" assumption was
-stale). Gaps filed before any tool code: `vyapaar-market/docs/gaps/0001-options-chain-reader.md`
-(that repo's first gap), `vyapaar-data/docs/gaps/0008-corporate-actions-rust-bridge.md` +
-`0009-corporate-actions-ingestion.md`. Landed: `OptionContract`/`OptionsChain`/
-`CorporateAction` DTOs + `MarketReader::options_chain`/`corporate_actions` port methods,
-`options_chain` + `corporate_actions` ReadOnly tools (catalogue **17 → 19**), runtime
-`FeedMarketReader` honest stubs + seedable `RuntimeMarketReader` stores. **Plan 0006 is now
-complete (Phases 1–4)** — doc retired per gap-tracking §4, recorded in agent's
-`docs/plans/README.md` Implemented table; follow-on breadth continues under agent plan 0007
-(master MCP-ecosystem guide, committed `a0817a6` after its README reference landed one commit
-early in 127597d). Runtime side landed as `bcd1c76` — `FeedMarketReader` stubs, seedable
-`RuntimeMarketReader::set_options_chain`/`set_corporate_actions` stores + `chat_adapters_tests`
-coverage, runtime gap 0007 items 8–9, runtime HANDOFF. Commits: agent `127597d` + `a0817a6`,
-runtime `bcd1c76`, market `d4e3c76`, data `0bc5edd`. All gates re-verified 2026-11-12 in both
-Rust repos — fmt / clippy `-D warnings` / `cargo test --workspace --profile prod` (0 failed in
-each) and fresh `make prod` in each.
+Date: 2026-11-12. Research-verified everything against `vyapaar-adapters` source
+first: all 7 broker modules implemented + entry-pointed (`dhan`, `zerodha`,
+`angelone`, `upstox`, `fyers`, `kotak`, `iifl`); contract tests only for
+dhan/zerodha; `zerodha.get_bars` the only real OHLCV; all 7 `cancel_order`
+fabricate zeroed Orders; no WebSocket/TOTP/TOML-loader; configs templates exist
+for dhan/zerodha/paper only. Discovery: `vyapaar-docs` described a **non-existent**
+per-broker-package architecture (`vyapaar-dhan` distributions, `WireMap`,
+`routes.toml`, float prices, async facade) — corrected repo-wide.
+
+- `vyapaar-adapters`: per-module design set completed (`code-parse.md`,
+  `code-config.md`, `code-codec.md`, `code-public-api.md` + architecture doc
+  map); **plan 0002 retired** as stale (no phase started) → new plan 0003
+  `0003-adapter-parity-streaming-realism.md` (baseline re-verified, adds
+  Phase D improvements); all 7 gaps refreshed with verified
+  `Still pending` statuses (0006/0007 classified **improvement**; 0007 marked
+  partially addressed: 3-of-7 templates, no loader/tests); gaps/plans README
+  indexes + roadmap Milestone 2 updated; repo HANDOFF rewritten.
+- `vyapaar-docs`: new detailed page `docs/api/adapters-package.md` (nav under
+  API Reference); rewrote `india/adapter_configuration.md` +
+  `contributing/adding_adapters.md`; fixed `india/brokers.md`,
+  `api/adapters.md` (SDK `vyapaar.adapters` registry banner: planned-only,
+  verified absent from `vyapaar-ffi`), `conformance_matrix.md` adapter row,
+  `architecture/adapter_interface.md` §5, `architecture/index.md`,
+  `api/python/index.md`, `getting-started/installation.md`,
+  `contributing/development_setup.md`; nav updated. `mkdocs build --strict`
+  PASS (0 anchor warnings; known `docs/plans/*` informational only).
+- Gates: `pytest -q` + `ruff check .` green in `vyapaar-adapters` (no code
+  changed, re-verified). No Rust repos touched (`make prod` invariant N/A).
 
 ## Prior batches (collapsed per `.agents/rules/handoff-hygiene.md`)
 
-- **Plan 0006 Phase 3 (2026-11-12)** — `news_search`/`filings_search` via new `ContentReader`
-  port (catalogue 15 → 17); gaps `vyapaar-data/docs/gaps/0006`+`0007` filed. Commits: agent
-  `98c66c2`, runtime `96e878f`, data `3ee4005`.
-- **Plan 0006 Phases 1–2 (2026-11-11)** — Phase 1 `BlockDealsTool` (new
-  `MarketReader::block_deals`, honest runtime stub citing `vyapaar-data` gap 0005, seedable
-  `RuntimeMarketReader` store; runtime plan 0004 Phases 1–3) and Phase 2 `PriceAlertTool` CRUD
-  (`AlertReader`/`AlertWriter` port, `price_alert_list`/`price_alert`, LocalWrite bundle kept
-  outside the all-ReadOnly count pin; runtime storage = existing `Profile.alerts` document via
-  `chat_alerts.rs::ProfileAlertStore`). Catalogue went 14 → 15 read-only + 2 alert tools across
-  the two phases. Repo HANDOFFs and plan docs carry the detail (agent `a72689c`, runtime
-  `d54f140`).
-- **Fincept/Quantcept gap-closure batch (2026-11-06)** — Layers 0, 1, 2, 2b, 3, 4, 5, 6 GREEN
-  (full per-layer table with commits kept in git history of this file; `vyapaar-core` 9ce4880,
+- **Plan 0006 Phase 4 (2026-11-12)** — `options_chain`/`corporate_actions` chat
+  tools; research re-verified upstream first (`vyapaar-market` had no chain
+  reader; `vyapaar-data` corporate-actions reader exists Python-side). Gaps
+  filed before tool code: `vyapaar-market/docs/gaps/0001-options-chain-reader.md`,
+  `vyapaar-data/docs/gaps/0008-corporate-actions-rust-bridge.md` + `0009`.
+  Landed: `OptionContract`/`OptionsChain`/`CorporateAction` DTOs,
+  `MarketReader::options_chain`/`corporate_actions`, 2 ReadOnly tools
+  (catalogue **17 → 19**), honest `FeedMarketReader` stubs + seedable
+  `RuntimeMarketReader` stores. **Plan 0006 complete (Phases 1–4)**, doc
+  retired to agent `docs/plans/README.md` Implemented table; follow-on breadth
+  under agent plan 0007. Commits: agent `127597d`+`a0817a6`, runtime `bcd1c76`,
+  market `d4e3c76`, data `0bc5edd`. All gates re-verified 2026-11-12 (fmt /
+  clippy `-D warnings` / `cargo test --workspace --profile prod` 0 failed /
+  fresh `make prod` each).
+- **Plan 0006 Phase 3 (2026-11-12)** — `news_search`/`filings_search` via new
+  `ContentReader` port (catalogue 15 → 17); gaps `vyapaar-data/docs/gaps/0006`+`0007`
+  filed. Commits: agent `98c66c2`, runtime `96e878f`, data `3ee4005`.
+- **Plan 0006 Phases 1–2 (2026-11-11)** — `BlockDealsTool` (`MarketReader::block_deals`,
+  honest runtime stub citing `vyapaar-data` gap 0005, runtime plan 0004 Phases 1–3)
+  and `PriceAlertTool` CRUD (`AlertReader`/`AlertWriter`, `price_alert_list`/`price_alert`,
+  `Profile.alerts` storage). Catalogue 14 → 15 read-only + 2 alert tools
+  (agent `a72689c`, runtime `d54f140`).
+- **Fincept/Quantcept gap-closure batch (2026-11-06)** — Layers 0–6 GREEN
+  (per-layer table with commits in this file's git history; `vyapaar-core` 9ce4880,
   `vyapaar-ledger` b35a314, `vyapaar-risk` 5b00cda, `vyapaar-market` ddb5c3f+1983512,
   `vyapaar-exec` 2675c07+ed3a6b3, `vyapaar-strategies` 207a70c, `vyapaar-agent` 36b0d53/1f9fb13/
   51b024d/236f8eb/5470e7b, `vyapaar-ui` 2cda245+acdc137, `vyapaar-examples` 552c873,
