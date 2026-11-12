@@ -51,7 +51,7 @@ Vyapaar adopts a strict DDD bounded-context taxonomy, separating distinct bounde
 | **Heart** | `vyapaar-ledger/` | Rust | **Domain Heart**: Order Management System (`oms`), FIFO tax-lot tracking (`portfolio`), and double-entry general ledger. |
 | **Gate** | `vyapaar-risk/` | Rust | **Regulatory Risk Gate**: Sub-15 µs pre-trade risk engine (SEBI algo ID, OTR circuit breakers, price bands, freeze limits). |
 | **Eye** | `vyapaar-market/` | Rust | **Market Data**: Multi-broker binary WebSockets (Kite, Upstox, Fyers, Angel One), tick coalescing, 100+ StockSharp indicators, Parquet Lakehouse. |
-| **Hand** | `vyapaar-exec/` | Rust | **Execution**: Token-bucket rate limiter, freeze slicer, headless TOTP auth, Smart Order Router (SOR), SQLite WAL audit journal. |
+| **Hand** | `vyapaar-exec/` | Rust | **Execution**: Token-bucket rate limiter, freeze slicer, headless TOTP auth, Smart Order Router (SOR), hash-chained fsynced audit journal (JSONL segment WAL). |
 | **House** | `vyapaar-runtime/` | Rust (Tokio) | **Central Actor Runtime**: Multi-threaded actor pipeline, Strategy Tester (`backtest`), and Automatic Strategy Enhancer (GA, Bayesian, WFO, DSR). |
 | **Agent** | `vyapaar-agent/` | Rust + Python | **AI Agent**: Autonomous research loop, MCP server, prompt replayer, and StockSharp Odysseus genetic strategy synthesizer. |
 | **Soul** | `vyapaar-ffi/`| Rust (PyO3) | **Python FFI Bridge**: Compiles `vyapaar` PyPI wheel, Arrow zero-copy memory bridge, and smart GIL management. |

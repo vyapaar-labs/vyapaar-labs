@@ -14,7 +14,7 @@
 | [`vyapaar-ledger`](./vyapaar-ledger) | Rust | **Domain Heart (Zero-I/O)**: Order Management System (`oms`), FIFO tax-lot tracking (`portfolio`), double-entry general ledger (`journal`). |
 | [`vyapaar-risk`](./vyapaar-risk) | Rust | **Regulatory Risk Gate**: Sub-15 µs pre-trade risk engine (SEBI algo ID, OTR circuit breakers, scrip price bands, freeze limits, kill-switch). |
 | [`vyapaar-market`](./vyapaar-market) | Rust | **Market Data**: Multi-broker binary WebSockets (Zerodha, Upstox, Angel One, Fyers), tick coalescing, 100+ indicators, Parquet loaders, macro/finance series. |
-| [`vyapaar-exec`](./vyapaar-exec) | Rust | **Execution Gateway**: First-party broker executors, headless TOTP auth, freeze slicer, Smart Order Router (SOR), SQLite WAL audit journal. |
+| [`vyapaar-exec`](./vyapaar-exec) | Rust | **Execution Gateway**: First-party broker executors, headless TOTP auth, freeze slicer, Smart Order Router (SOR), hash-chained fsynced audit journal (JSONL segment WAL). |
 | [`vyapaar-runtime`](./vyapaar-runtime) | Rust | **Central Runtime & Automation**: Tokio actor pipeline, event-driven backtester, strategy enhancer (GA/WFO), Axum REST/WS API, cron/background jobs, SQLite & git2 snapshots. |
 | [`vyapaar-agent`](./vyapaar-agent) | Rust | **AI Agent & Agent Engine**: Local/cloud LLMs (Anthropic/OpenAI), trader loop, prompt replay, genetic synthesizer, MCP (`rmcp`), agent tools, plugin marketplace, embedded Typst reports. |
 | [`vyapaar-ffi`](./vyapaar-ffi) | Rust (PyO3) | **Python FFI Bridge**: Apache Arrow zero-copy memory bridge and smart GIL management. Builds the `vyapaar` PyPI wheel. |
