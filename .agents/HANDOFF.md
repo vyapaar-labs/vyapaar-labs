@@ -14,38 +14,32 @@ Playbook: `docs/future-work-bottoms-up-build-order.md` (execution order, by crat
 depth). The repo-migration (`honba-*` → `vyapaar-*`, Tier 0–6) that used to be this file's whole
 subject is complete and long superseded — see "Prior work" below.
 
-## Latest Batch — adapters documentation sync (vyapaar-adapters + vyapaar-docs)
+## Latest Batch — resolve rebase conflicts (vyapaar-agent, vyapaar-data, vyapaar-adapters, vyapaar-market)
 
-Date: 2026-11-12. Research-verified everything against `vyapaar-adapters` source
-first: all 7 broker modules implemented + entry-pointed (`dhan`, `zerodha`,
-`angelone`, `upstox`, `fyers`, `kotak`, `iifl`); contract tests only for
-dhan/zerodha; `zerodha.get_bars` the only real OHLCV; all 7 `cancel_order`
-fabricate zeroed Orders; no WebSocket/TOTP/TOML-loader; configs templates exist
-for dhan/zerodha/paper only. Discovery: `vyapaar-docs` described a **non-existent**
-per-broker-package architecture (`vyapaar-dhan` distributions, `WireMap`,
-`routes.toml`, float prices, async facade) — corrected repo-wide.
-
-- `vyapaar-adapters`: per-module design set completed (`code-parse.md`,
-  `code-config.md`, `code-codec.md`, `code-public-api.md` + architecture doc
-  map); **plan 0002 retired** as stale (no phase started) → new plan 0003
-  `0003-adapter-parity-streaming-realism.md` (baseline re-verified, adds
-  Phase D improvements); all 7 gaps refreshed with verified
-  `Still pending` statuses (0006/0007 classified **improvement**; 0007 marked
-  partially addressed: 3-of-7 templates, no loader/tests); gaps/plans README
-  indexes + roadmap Milestone 2 updated; repo HANDOFF rewritten.
-- `vyapaar-docs`: new detailed page `docs/api/adapters-package.md` (nav under
-  API Reference); rewrote `india/adapter_configuration.md` +
-  `contributing/adding_adapters.md`; fixed `india/brokers.md`,
-  `api/adapters.md` (SDK `vyapaar.adapters` registry banner: planned-only,
-  verified absent from `vyapaar-ffi`), `conformance_matrix.md` adapter row,
-  `architecture/adapter_interface.md` §5, `architecture/index.md`,
-  `api/python/index.md`, `getting-started/installation.md`,
-  `contributing/development_setup.md`; nav updated. `mkdocs build --strict`
-  PASS (0 anchor warnings; known `docs/plans/*` informational only).
-- Gates: `pytest -q` + `ruff check .` green in `vyapaar-adapters` (no code
-  changed, re-verified). No Rust repos touched (`make prod` invariant N/A).
+Date: 2026-11-12. Resolved merge conflicts arising during interactive rebase onto `origin/main`:
+- `vyapaar-agent`: Resolved plan numbering collision between upstream roadmap dismantling
+  (renumbered active plans to 0008/0009) and the institutional/smart-money flow detection suite.
+  Renumbered smart-money plan to `0010`, updated upstream gap dependencies to data `0013`/`0014`,
+  and updated `docs/plans/README.md` and `.agents/HANDOFF.md`. Rebased to `32b37c7`.
+- `vyapaar-data`: Resolved gap numbering collision between upstream roadmap dismantling
+  (which claimed 0010–0012) and the new FII/DII flow and delivery percentage gaps.
+  Renumbered them to gaps `0013` and `0014`, linked to agent plan `0010`, and updated
+  `docs/gaps/README.md`. Rebased to `a370be5`.
+- `vyapaar-adapters`: Resolved rebase conflicts against dismantled roadmap (confirmed removal
+  of `docs/roadmap/`), merged competing `code-config.md` additions, folded Phase D (Improvements)
+  into active plan `0002`, preserved plans `0003` & `0004`, integrated section 5 per-module doc
+  map in `architecture.md`, and updated gaps `0001`–`0007`. Rebased to `8d7c440`.
+- `vyapaar-market`: Updated plan reference in gap `0002-open-interest-history-and-buildup-tracking.md`
+  from agent plan 0008 to 0010. Committed as `87ed5aa`.
+- All submodule working trees clean, `pytest` passes in `vyapaar-adapters` (44 passed) and
+  `vyapaar-data` (86 passed).
 
 ## Prior batches (collapsed per `.agents/rules/handoff-hygiene.md`)
+
+- **Adapters documentation sync (vyapaar-adapters + vyapaar-docs, 2026-11-12)**:
+  `vyapaar-adapters` per-module design docs (`code-parse.md`, `code-config.md`,
+  `code-codec.md`, `code-public-api.md`), gaps 0001–0007 refreshed; `vyapaar-docs` updated
+  with `docs/api/adapters-package.md`, `india/adapter_configuration.md`, etc.
 
 - **Plan 0006 Phase 4 (2026-11-12)** — `options_chain`/`corporate_actions` chat
   tools; research re-verified upstream first (`vyapaar-market` had no chain
